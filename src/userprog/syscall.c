@@ -38,29 +38,45 @@ syscall_handler (struct intr_frame *f UNUSED)
       if(fileWriteDescriptor == STDOUT_FILENO){
       	putbuf(buffer,size);
         f->eax = size;
-      }else{
-        f->eax = file_write(fdOpen(fileWriteDescriptor),buffer,size);
+      }else{   
+        struct file* openFile = fdOpen(fileWriteDescriptor);        
+	if (openFile != NULL){
+          f->eax = file_write(openFile,buffer,size);
+        } else {
+          f->eax = -1;
+        }
       }
       break;
   case SYS_OPEN:
       printf ("open system call!\n");
-      const char *fileToOpen = *(p + 1);
-      struct file *fp = filesys_open(fileToOpen);
-      f->eax = addFile(fp);
+      const char *fileToOpen = *(p + 1);     
+      struct file* openFile = filesys_open(fileToOpen);
+      if (openFile != NULL){
+        f->eax = addFile(openFile);
+      } else {
+        f->eax = -1;
+      }
+      printf("%i", f->eax);
+      printf("\n");
       break;
   case SYS_READ:
       printf ("read system call!\n");
-      int *fileReadDescriptor = *(p + 1);
+      int *fileReadDescriptor = *(p + 1);      
       buffer = *(p + 2);
       size = *(p + 3);
       if(fileReadDescriptor == STDIN_FILENO){
 	for(i = 0; i < size; i++){
 	  input_getc();
         }
-      f->eax = size;
+        f->eax = size;
       }
-      else{
-	f->eax = file_read(fdOpen(fileReadDescriptor),buffer,size);
+      else{ 
+        struct file* openFile = fdOpen(fileReadDescriptor);  
+        if (openFile != NULL){
+          f->eax = file_write(openFile,buffer,size);
+        } else {
+          f->eax = -1;
+        } 
       }
       
       break;
@@ -70,3 +86,51 @@ syscall_handler (struct intr_frame *f UNUSED)
       break;
   }
 }
+
+
+
+ int addFile(struct file *f){
+      struct thread *t = thread_current();
+      unsigned int i;
+      for (i = 0; i < 128; ++i){
+        if(t->fileArray[i] == NULL){
+          t->fileArray[i] = f;
+          return i+2;
+        }
+      }
+        return -1;
+    }
+
+    void removeFile(int fd){
+      struct thread *t = thread_current();
+      t->fileArray[fd - 2] = NULL;
+    }
+
+    struct file* fdOpen(int fd){
+      if (fd >= 0 && fd < 128){
+        struct thread *t = thread_current();
+        return t->fileArray[fd - 2];
+      } else {
+	return NULL;
+      }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

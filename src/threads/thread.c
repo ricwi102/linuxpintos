@@ -497,12 +497,13 @@ schedule_tail (struct thread *prev)
 #ifdef USERPROG
   /* Activate the new address space. */
   process_activate ();
-   
-  int addFile(struct file *f){
+   /*
+   int addFile(struct file *f){
+      struct thread *t = thread_current();
       unsigned int i;
       for (i = 0; i < 128; ++i){
-        if(fileArray[i] == NULL){
-          fileArray[i] = f;
+        if(t->fileArray[i] == NULL){
+          t->fileArray[i] = f;
           return i+2;
         }
       }
@@ -510,12 +511,14 @@ schedule_tail (struct thread *prev)
     }
 
     void removeFile(int fd){
-      fileArray[fd - 2] = NULL;
+      struct thread *t = thread_current();
+      t->fileArray[fd - 2] = NULL;
     }
 
     struct file* fdOpen(int fd){
-      return fileArray[fd - 2];
-    }
+      struct thread *t = thread_current ();
+      return t->fileArray[fd - 2];
+    }*/
 
 
 

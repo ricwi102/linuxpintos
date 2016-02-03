@@ -95,7 +95,7 @@ struct thread
 #ifdef USERPROG
     /* Owned by userprog/process.c. */
     uint32_t *pagedir;                  /* Page directory. */
-    
+    struct file *fileArray[128];
     
 #endif
 
@@ -103,9 +103,8 @@ struct thread
     unsigned magic;                     /* Detects stack overflow. */
   };
 
-#ifdef USERPROG 
-    struct file *fileArray[128];
-   
+#ifdef USERPROG
+
     int addFile(struct file *f);
     void removeFile(int fd);
     struct file* fdOpen(int fd);
