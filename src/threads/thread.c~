@@ -278,6 +278,14 @@ thread_exit (void)
 
 #ifdef USERPROG
   process_exit ();
+  unsigned int i;
+  struct thread *t = thread_current();
+  for (i = 0; i < 128; ++i){
+    if (t->fileArray[i] != NULL){
+      file_close(t->fileArray[i]);
+      t->fileArray[i] = NULL;
+    }
+  }
 #endif
 
   /* Just set our status to dying and schedule another process.
@@ -497,7 +505,7 @@ schedule_tail (struct thread *prev)
 #ifdef USERPROG
   /* Activate the new address space. */
   process_activate ();
-   
+   /*
    int addFile(struct file *f){
       struct thread *t = thread_current();
       unsigned int i;
@@ -518,7 +526,7 @@ schedule_tail (struct thread *prev)
     struct file* fdOpen(int fd){
       struct thread *t = thread_current ();
       return t->fileArray[fd - 2];
-    }
+    }*/
 
 
 

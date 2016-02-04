@@ -21,7 +21,7 @@ syscall_handler (struct intr_frame *f UNUSED)
 {
   int *p = f->esp;
   const void *buffer;
-  unsigned int size;
+  size_t size;
   unsigned int i;
   switch(*p){
   case SYS_HALT:
@@ -38,26 +38,9 @@ syscall_handler (struct intr_frame *f UNUSED)
         f->eax = false;
       }
       break;
-  case SYS_WRITE:
-      printf ("write system call!\n");
-      int *fileWriteDescriptor = *(p + 1);
-      buffer = *(p + 2);
-      size = *(p + 3);
-      if(fileWriteDescriptor == STDOUT_FILENO){
-      	putbuf(buffer,size);
-        f->eax = size;
-      }else{   
-        struct file* openFile = fdOpen(fileWriteDescriptor);        
-	if (openFile != NULL){
-          f->eax = file_write(openFile,buffer,size);
-        } else {
-          f->eax = -1;
-        }
-      }
-      break;
   case SYS_OPEN:
       printf ("open system call!\n");
-      const char *fileToOpen = *(p + 1);     
+      const char *fileToOpen = (const char*)*(p + 1);     
       struct file* openFile = filesys_open(fileToOpen);
       if (openFile != NULL){
         f->eax = addFile(openFile);
@@ -67,17 +50,24 @@ syscall_handler (struct intr_frame *f UNUSED)
       printf("%i", f->eax);
       printf("\n");
       break;
+  case SYS_CLOSE:
+      printf ("close system call!\n");
+      int fileCloseDescriptor = *(p + 1);
+      file_close(fdOpen(fileCloseDescriptor));
+      removeFile(fileCloseDescriptor);
+      break;
   case SYS_READ:
       printf ("read system call!\n");
-      int *fileReadDescriptor = *(p + 1);      
+      int fileReadDescriptor = *(p + 1);      
       buffer = *(p + 2);
       size = *(p + 3);
       if(fileReadDescriptor == STDIN_FILENO){
 	for(i = 0; i < size; i++){
-          input_getc();
+	  *((char*)buffer + i) = input_getc();
           //TODO: 
 	  //*buffer = input_getc();
 	  //buffer++;
+	  //Borde fungera nu!
         }
         f->eax = size;
       }
@@ -88,19 +78,37 @@ syscall_handler (struct intr_frame *f UNUSED)
         } else {
           f->eax = -1;
         } 
+      }      
+      break;  
+  case SYS_WRITE:
+      printf ("write system call!\n");
+      int fileWriteDescriptor = *(p + 1);
+      buffer = *(p + 2);
+      size = *(p + 3);
+      if(fileWriteDescriptor == STDOUT_FILENO){
+	//TODO:
+	//Split it up if larger than a few hundred bytes
+	static const chunk_size_max = 200;
+	for (i = 0; i <= (size/chunk_size_max); ++i){
+	  size_t chunk_size = (size / chunk_size_max) > i ? chunk_size_max : (size % chunk_size_max);
+
+      	  putbuf((buffer + i*chunk_size_max), chunk_size);          
+	}
+	f->eax = size;
+      }else{   
+        struct file* openFile = fdOpen(fileWriteDescriptor);        
+	if (openFile != NULL /*&& openFile->deny_write == false*/){
+          f->eax = file_write(openFile,buffer,size);
+        } else {
+          f->eax = -1;
+        }
       }
-      
-      break;
-  case SYS_CLOSE:
-      printf ("close system call!\n");
-      int *fileCloseDescriptor = *(p + 1);
-      file_close(fdOpen(fileCloseDescriptor));
-      removeFile(fileCloseDescriptor);
-      break;
+      break;    
   case SYS_EXIT:
       printf ("exit system call!\n");
       thread_exit();
       //TODO: free resources?
+      //Freed the file-array in thread_exit()
       break;
   default:
       printf ("default system call! SYS_NR: ");
@@ -130,18 +138,13 @@ syscall_handler (struct intr_frame *f UNUSED)
 
     struct file* fdOpen(int fd){
       if (fd >= 0 && fd < 128){
-        struct thread *t = thread_current();
+        struct thread *t = thread_current();				
         return t->fileArray[fd - 2];
       } else {
 	return NULL;
       }
     }
-
-
-
-
-
-
+   
 
 
 

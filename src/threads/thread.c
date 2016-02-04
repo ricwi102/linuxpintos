@@ -278,6 +278,15 @@ thread_exit (void)
 
 #ifdef USERPROG
   process_exit ();
+
+  unsigned int i;
+  struct thread *t = thread_current();
+  for (i = 0; i < 128; ++i){
+    if (t->fileArray[i] != NULL){
+      file_close(t->fileArray[i]);
+      t->fileArray[i] = NULL;
+    }
+  }
 #endif
 
   /* Just set our status to dying and schedule another process.
