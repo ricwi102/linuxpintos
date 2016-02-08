@@ -25,11 +25,9 @@ syscall_handler (struct intr_frame *f UNUSED)
   unsigned int i;
   switch(*p){
   case SYS_HALT:
-      printf ("HALT\n");
       power_off();
       break;
-  case SYS_CREATE:
-      printf ("create system call!\n");
+  case SYS_CREATE:{
       const char *filename = (const char*)(*(p + 1));
       size = *(p + 2);
       if(*filename != NULL){
@@ -37,37 +35,28 @@ syscall_handler (struct intr_frame *f UNUSED)
       }else{
         f->eax = false;
       }
-      break;
-  case SYS_OPEN:
-      printf ("open system call!\n");
+      break; }
+  case SYS_OPEN:{
       const char *fileToOpen = (const char*)*(p + 1);     
-      struct file* openFile = filesys_open(fileToOpen);
+      struct file* openFile = (struct file*)filesys_open(fileToOpen);
       if (openFile != NULL){
         f->eax = addFile(openFile);
       } else {
         f->eax = -1;
       }
-      printf("%i", f->eax);
-      printf("\n");
-      break;
-  case SYS_CLOSE:
-      printf ("close system call!\n");
+      break; }
+  case SYS_CLOSE:{
       int fileCloseDescriptor = *(p + 1);
       file_close(fdOpen(fileCloseDescriptor));
       removeFile(fileCloseDescriptor);
-      break;
-  case SYS_READ:
-      printf ("read system call!\n");
+      break; }
+  case SYS_READ:{
       int fileReadDescriptor = *(p + 1);      
-      buffer = *(p + 2);
+      buffer = (const void*)(*(p + 2));
       size = *(p + 3);
       if(fileReadDescriptor == STDIN_FILENO){
 	for(i = 0; i < size; i++){
 	  *((char*)buffer + i) = input_getc();
-          //TODO: 
-	  //*buffer = input_getc();
-	  //buffer++;
-	  //Borde fungera nu!
         }
         f->eax = size;
       }
@@ -79,17 +68,13 @@ syscall_handler (struct intr_frame *f UNUSED)
           f->eax = -1;
         } 
       }      
-      break;  
-  case SYS_WRITE:
-      printf ("write system call!\n");
+      break; }
+  case SYS_WRITE:{
       int fileWriteDescriptor = *(p + 1);
-      buffer = *(p + 2);
+      buffer = (const void*)(*(p + 2));
       size = *(p + 3);
       if(fileWriteDescriptor == STDOUT_FILENO){
-	//TODO:
-	//Split it up if larger than a few hundred bytes
-	//Seems to works for size < 200 , haven't tested for larger.
-	static const chunk_size_max = 200;
+	static const size_t chunk_size_max = 200;
 	for (i = 0; i <= (size/chunk_size_max); ++i){
 	  size_t chunk_size = (size / chunk_size_max) > i ? chunk_size_max : (size % chunk_size_max);
 
@@ -104,17 +89,15 @@ syscall_handler (struct intr_frame *f UNUSED)
           f->eax = -1;
         }
       }
-      break;    
-  case SYS_EXIT:
-      printf ("exit system call!\n");
+      break; }
+  case SYS_EXIT:{
       thread_exit();
-      //TODO: free resources?
       //Freed the file-array in thread_exit()
-      break;
-  default:
+      break; }
+  default:{
       printf ("default system call! SYS_NR: ");
       printf ("%d \n",*p);
-      break;
+      break; }
   }
 }
 
@@ -138,7 +121,7 @@ syscall_handler (struct intr_frame *f UNUSED)
     }
 
     struct file* fdOpen(int fd){
-      if (fd >= 0 && fd < 128){
+      if (fd >= 2 && fd < 130){
         struct thread *t = thread_current();				
         return t->fileArray[fd - 2];
       } else {
