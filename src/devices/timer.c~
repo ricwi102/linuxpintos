@@ -104,7 +104,7 @@ timer_sleep (int64_t ticks)
  
   thread_current()->ticks_when_wakeup = timer_ticks() + ticks;
   list_insert_ordered(&sleep_list,&thread_current()->elem, 
-  (*thread_less_func)(struct list_elem* a, struct list_elem* b, void* aux),
+  *(thread_less_func)(struct list_elem* a, struct list_elem* b, void* aux),
   NULL);
   thread_block();
 

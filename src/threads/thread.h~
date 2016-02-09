@@ -89,13 +89,15 @@ struct thread
     uint8_t *stack;                     /* Saved stack pointer. */
     int priority;                       /* Priority. */
 
+    uint64_t sleep_ticks;               /* Number of ticks the thread will sleep in. */
+
     /* Shared between thread.c and synch.c. */
     struct list_elem elem;              /* List element. */
 
 #ifdef USERPROG
     /* Owned by userprog/process.c. */
     uint32_t *pagedir;                  /* Page directory. */
-    
+    struct file *fileArray[128];
     
 #endif
 
@@ -103,9 +105,8 @@ struct thread
     unsigned magic;                     /* Detects stack overflow. */
   };
 
-#ifdef USERPROG 
-    struct file *fileArray[128];
-   
+#ifdef USERPROG
+
     int addFile(struct file *f);
     void removeFile(int fd);
     struct file* fdOpen(int fd);
