@@ -592,7 +592,7 @@ uint32_t thread_stack_ofs = offsetof (struct thread, stack);
 
 bool
 thread_less_func(struct list_elem *a, struct list_elem *b, void *aux) {
-  return list_entry(a,struct thread,elem)->tick_when_wakeup <
-         list_entry(b,struct thread,elem)->tick_when_wakeup;
+  return list_entry(a,struct thread,elem)->ticks_when_wakeup <
+         list_entry(b,struct thread,elem)->ticks_when_wakeup;
 
 }

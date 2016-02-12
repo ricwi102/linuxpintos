@@ -110,7 +110,16 @@ timer_sleep (int64_t ticks)
     thread_less_func,NULL);
 
     thread_block();
-
+// Prints the wake-up values in the list (to check if it is sorted)
+/*
+    struct list_elem* e;
+    for (e = list_begin(&sleep_list); e != list_end(&sleep_list); e = list_next(e)){
+      struct thread *p_thread = list_entry(e, struct thread, elem);
+      printf("%i", p_thread->ticks_when_wakeup);
+      printf("\n");
+    }
+    printf("%s", "Next loop \n");
+*/
     intr_set_level(old_level);
   }
 
@@ -152,7 +161,7 @@ static void
 timer_interrupt (struct intr_frame *args UNUSED)
 {
   ticks++;
-  thread_tick ();
+  thread_tick (); // i think this should be at the bottom, (Richard)
 
   uint8_t i = 0;
   struct list_elem* e = list_begin(&sleep_list);
