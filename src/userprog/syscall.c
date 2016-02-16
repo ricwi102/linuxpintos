@@ -37,11 +37,12 @@ syscall_handler (struct intr_frame *f UNUSED)
       }
       break; }
   case SYS_OPEN:{
+// fix full array (close the open file)
       const char *fileToOpen = (const char*)*(p + 1);     
       struct file* openFile = (struct file*)filesys_open(fileToOpen);
       if (openFile != NULL){
         f->eax = addFile(openFile);
-      } else {
+      } else {        
         f->eax = -1;
       }
       break; }
@@ -55,10 +56,10 @@ syscall_handler (struct intr_frame *f UNUSED)
       buffer = (const void*)(*(p + 2));
       size = *(p + 3);
       if(fileReadDescriptor == STDIN_FILENO){
-	for(i = 0; i < size; i++){
-	  *((char*)buffer + i) = input_getc();
-        }
-        f->eax = size;
+			for(i = 0; i < size; i++){
+	  			*((char*)buffer + i) = input_getc();
+        	}
+        	f->eax = size;
       }
       else{ 
         struct file* openFile = fdOpen(fileReadDescriptor);  
@@ -74,15 +75,14 @@ syscall_handler (struct intr_frame *f UNUSED)
       buffer = (const void*)(*(p + 2));
       size = *(p + 3);
       if(fileWriteDescriptor == STDOUT_FILENO){
-	static const size_t chunk_size_max = 200;
-	for (i = 0; i <= (size/chunk_size_max); ++i){
-	  size_t chunk_size = (size / chunk_size_max) > i ? chunk_size_max : (size % chunk_size_max);
-
-      	  putbuf((buffer + i*chunk_size_max), chunk_size);          
-	}
-	f->eax = size;
+			static const size_t chunk_size_max = 200;
+			for (i = 0; i <= (size/chunk_size_max); ++i){
+	  			size_t chunk_size = (size / chunk_size_max) > i ? chunk_size_max : (size % chunk_size_max);
+      	  	putbuf((buffer + i*chunk_size_max), chunk_size);          
+			}
+			f->eax = size;
       }else{   
-        struct file* openFile = fdOpen(fileWriteDescriptor);        
+        	struct file* openFile = fdOpen(fileWriteDescriptor);        
 	if (openFile != NULL /*&& openFile->deny_write == false*/){
           f->eax = file_write(openFile,buffer,size);
         } else {
@@ -91,16 +91,28 @@ syscall_handler (struct intr_frame *f UNUSED)
       }
       break; }
   case SYS_EXIT:{
+		int exit_value = (int)(*(p + 1));
+		printf("%s: exit(%d) \n", thread_current()->name, exit_value);
       thread_exit();
-      //Freed the file-array in thread_exit()
+      //Freed the file-array in thread_exit()      
+		f->eax = exit_value;
+		
       break; }
+  case SYS_EXEC:{
+      const char *filename = (const char*)(*(p + 1));
+		int pid = process_execute(filename);    
+		if (pid = TID_ERROR) f->eax =  -1;
+		else f->eax = pid;				
+  }
+  case SYS_WAIT:{
+		
+	}
   default:{
       printf ("default system call! SYS_NR: ");
       printf ("%d \n",*p);
       break; }
   }
 }
-
 
 
     int addFile(struct file *f){
@@ -112,6 +124,7 @@ syscall_handler (struct intr_frame *f UNUSED)
           return i+2;
         }
       }
+		  file_close(f);
         return -1;
     }
 
@@ -125,7 +138,7 @@ syscall_handler (struct intr_frame *f UNUSED)
         struct thread *t = thread_current();				
         return t->fileArray[fd - 2];
       } else {
-	return NULL;
+			return NULL;
       }
     }
    
