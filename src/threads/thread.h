@@ -105,12 +105,6 @@ struct thread
     unsigned magic;                     /* Detects stack overflow. */
   };
 
-#ifdef USERPROG
-
-    int addFile(struct file *f);
-    void removeFile(int fd);
-    struct file* fdOpen(int fd);
-#endif
 
 /* If false (default), use round-robin scheduler.
    If true, use multi-level feedback queue scheduler.
