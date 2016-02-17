@@ -92,7 +92,7 @@ syscall_handler (struct intr_frame *f UNUSED)
       break; }
   case SYS_EXIT:{
 		int exit_value = (int)(*(p + 1));
-		printf("%s: exit(%d) \n", thread_current()->name, exit_value)
+		printf("%s: exit(%d) \n", thread_current()->name, exit_value);
       thread_exit();
       //Freed the file-array in thread_exit()      
 		f->eax = exit_value;

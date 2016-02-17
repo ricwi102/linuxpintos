@@ -37,7 +37,6 @@ syscall_handler (struct intr_frame *f UNUSED)
       }
       break; }
   case SYS_OPEN:{
-// fix full array (close the open file)
       const char *fileToOpen = (const char*)*(p + 1);     
       struct file* openFile = (struct file*)filesys_open(fileToOpen);
       if (openFile != NULL){
@@ -106,7 +105,7 @@ syscall_handler (struct intr_frame *f UNUSED)
   }
   case SYS_WAIT:{
 		
-	}
+  }
   default:{
       printf ("default system call! SYS_NR: ");
       printf ("%d \n",*p);

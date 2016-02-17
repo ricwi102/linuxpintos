@@ -74,6 +74,37 @@ typedef int tid_t;
    the `magic' member of the running thread's `struct thread' is
    set to THREAD_MAGIC.  Stack overflow will normally change this
    value, triggering the assertion. */
+
+
+
+/*	
+		Child Status and its functions
+
+
+*/
+
+struct child_status
+	{
+		struct list_elem* elem;
+		struct semaphore s;
+		struct lock l;
+
+		int c_tid;		
+
+		int exit_status;		
+		int ref_count;		
+	};
+
+void parent_exit(struct thread *t);
+void reduce_ref_count(struct child_status* cs);
+
+//---------------
+
+
+
+
+
+
 /* The `elem' member has a dual purpose.  It can be an element in
    the run queue (thread.c), or it can be an element in a
    semaphore wait list (synch.c).  It can be used these two ways
@@ -92,9 +123,13 @@ struct thread
     uint64_t ticks_when_wakeup;               /* Number of ticks the thread will sleep in. */
 
     /* Shared between thread.c and synch.c. */
-    struct list_elem elem;              /* List element. */
+    struct list_elem elem;              /* List element. */	
 
-	 struct list* children;
+		/* List of Children */
+	 	struct list* cs_list;
+
+		/* Child_status */
+		struct child_status* cs;
 
 #ifdef USERPROG
     /* Owned by userprog/process.c. */
@@ -106,7 +141,6 @@ struct thread
     /* Owned by thread.c. */
     unsigned magic;                     /* Detects stack overflow. */
   };
-
 
 /* If false (default), use round-robin scheduler.
    If true, use multi-level feedback queue scheduler.
@@ -140,5 +174,12 @@ void thread_set_nice (int);
 int thread_get_recent_cpu (void);
 int thread_get_load_avg (void);
 bool thread_less_func(struct list_elem *a, struct list_elem *b, void *aux);
+
+
+
+
+
+
+
 
 #endif /* threads/thread.h */

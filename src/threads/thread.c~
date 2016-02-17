@@ -177,6 +177,7 @@ thread_create (const char *name, int priority,
   /* Initialize thread. */
   init_thread (t, name, priority);
   tid = t->tid = allocate_tid ();
+	cs_init(t->cs, tid);
 
   /* Stack frame for kernel_thread(). */
   kf = alloc_frame (t, sizeof *kf);
@@ -287,6 +288,11 @@ thread_exit (void)
       t->fileArray[i] = NULL;
     }
   }
+	
+	
+
+	free( t->children )
+
 #endif
 
   /* Just set our status to dying and schedule another process.
@@ -446,10 +452,11 @@ init_thread (struct thread *t, const char *name, int priority)
   t->priority = priority;
   t->magic = THREAD_MAGIC;
   #ifdef USERPROG
-	 unsigned int i;
-	 for (i = 0; i < 128; ++i){
-	 	t->fileArray[i] = NULL;
-	 }
+		unsigned int i;
+		for (i = 0; i < 128; ++i){
+			t->fileArray[i] = NULL;
+	 	}
+		list_init(t->cs_list);	
   #endif
 }
 
@@ -568,6 +575,35 @@ allocate_tid (void)
    Used by switch.S, which can't figure it out on its own. */
 uint32_t thread_stack_ofs = offsetof (struct thread, stack);
 
+void parent_exit(struct thread *t){		
+	struct list_elem* e = list_begin(t->children); 
+
+	while(e != list_end(t->children)){
+		struct child_status* cs = list_entry(e, struct thread, c_list_elem);
+		
+		reduce_ref_count(cs);
+		e = list_remove(e);		
+	}
+
+}
+
+void reduce_ref_count(struct child_status* cs){
+	lock_acquire(&cs->l);
+	cs->ref_count--;
+	if (ref_count == 0){
+		free(cs);
+	} else if (ref_count == 1){
+		sema_up(&cs->s);
+	}
+	lock_release(&cs->l);
+}
+
+void cs_init(struct child_status* cs, int tid){
+	sema_init(&cs->s, 0);
+	lock_init(&cs->l);
+	cs->refcount = 2;
+  cs->c_tid = tid;
+}
 
 
 

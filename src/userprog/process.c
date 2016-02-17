@@ -18,7 +18,7 @@
 #include "threads/thread.h"
 #include "threads/vaddr.h"
 
-static thread_func start_process NO_RETURN;
+static thread_func start_process (NO_RETURN);
 //static void start_process(struct fn_plus_sema* fn_sema);
 
 static bool load (const char *cmdline, void (**eip) (void), void **esp);
@@ -108,12 +108,21 @@ start_process (void* aux)
    does nothing. */
 int
 process_wait (tid_t child_tid UNUSED) 
-{
-  struct thread* child = thread_
-  while(true){
+{  
+	struct thread* t = thread_current();
+	struct list_elem* e = list_begin(thread_current()->cs_list);
+	int exit_value = -1
 
-  }
-  return -1;
+	for (e = list_begin(t->cs_list); e != list_begin(t->cs_list); e = list_next(e)){
+			struct child_status* cs = list_entry(e, struct thread, c_list_elem);
+			if (cs->c_tid == child_tid){
+				exit_value = get_exit_value(cs);
+				break;
+			}
+
+	}
+
+  return exit_value;
 }
 
 /* Free the current process's resources. */
