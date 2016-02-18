@@ -15,5 +15,7 @@ struct help_struct{
 	bool success;
 };
 
+void help_sct_init(struct help_struct* h_sct, char* f_n);
+
 
 #endif /* userprog/process.h */

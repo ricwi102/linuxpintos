@@ -19,19 +19,33 @@
 #include "threads/vaddr.h"
 
 static thread_func start_process NO_RETURN;
-//static void start_process(struct fn_plus_sema* fn_sema);
 
 static bool load (const char *cmdline, void (**eip) (void), void **esp);
 
+
+
+
+void help_sct_init(struct help_struct* h_sct, char* f_n){
+	struct semaphore* s;
+	sema_init(s, 0);
+	h_sct->s = s;
+	h_sct->file_name = f_n;
+	h_sct->success = false;
+}
+
+
+
+
+
+
 /* Starts a new thread running a user program loaded from
    FILENAME.  The new thread may be scheduled (and may even exit)
-   before process_execute() returns.  Returns the new process's
-   thread id, or TID_ERROR if the thread cannot be created. */
+   before process_execute() returns.  Returns the new process's thread id 
+	 (or TID_ERROR if the thread cannot be created). */
+
 tid_t
 process_execute (const char *file_name) 
 {
-  
-
   char *fn_copy;
   tid_t tid;
 
@@ -41,19 +55,19 @@ process_execute (const char *file_name)
   if (fn_copy == NULL)
     return TID_ERROR;
   strlcpy (fn_copy, file_name, PGSIZE);
-
-  struct semaphore* s;
-  sema_init(s, 0);  
+  
 
   struct help_struct* help_sct;
-  help_sct->file_name = fn_copy;
-  help_sct->s = s;
+	help_sct_init(help_sct, fn_copy);
 
   /* Create a new thread to execute FILE_NAME. */
   tid = thread_create (file_name, PRI_DEFAULT, start_process, help_sct);
 	
-  sema_down(s);
+  sema_down(help_sct->s);
   
+	struct help_rStruct h_rsct;
+	h_rsct->tid = tid;
+	h-rsct->cs 
 
   if (tid == TID_ERROR || help_sct->success)
     palloc_free_page (fn_copy); 
@@ -108,12 +122,21 @@ start_process (void* aux)
    does nothing. */
 int
 process_wait (tid_t child_tid UNUSED) 
-{
-  struct thread* child = thread_
-  while(true){
+{  
+	struct thread* t = thread_current();
+	struct list_elem* e = list_begin(&t->cs_list);
+	int exit_value = -1;
 
-  }
-  return -1;
+	for (e = list_begin(&t->cs_list); e != list_begin(&t->cs_list); e = list_next(e)){
+			struct child_status* cs = list_entry(e, struct child_status, elem);
+			if (cs->c_tid == child_tid){
+				exit_value = get_exit_value(cs);
+				reduce_ref_count(cs);
+				break;
+			}
+
+	}
+  return exit_value;
 }
 
 /* Free the current process's resources. */

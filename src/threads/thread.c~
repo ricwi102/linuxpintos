@@ -67,6 +67,55 @@ static void schedule (void);
 void schedule_tail (struct thread *prev);
 static tid_t allocate_tid (void);
 
+
+
+
+
+
+
+/* Reduces the ref_count of all the given threads 
+	 children and removes them from its list */
+
+void parent_exit(struct thread *t){		
+	struct list_elem* e = list_begin(&t->cs_list); 
+
+	while(e != list_end(&t->cs_list)){
+		struct child_status* cs = list_entry(e, struct child_status, elem);
+
+		reduce_ref_count(cs);
+		e = list_remove(e);		
+	}
+
+}
+
+void reduce_ref_count(struct child_status* cs){
+	lock_acquire(&cs->l);
+	cs->ref_count--;
+	if (cs->ref_count == 0){
+		free(cs);
+	} else if (cs->ref_count == 1){
+		sema_up(&cs->s);
+	}
+	lock_release(&cs->l);
+}
+
+void cs_init(struct child_status* cs, tid_t tid){
+	sema_init(&cs->s, 0);
+	lock_init(&cs->l);
+	cs->ref_count = 2;
+  cs->c_tid = tid;
+}
+
+int get_exit_value(struct child_status* cs){
+	if (cs->ref_count > 1){	sema_down(&cs->s); }
+	return cs->exit_status;
+}
+
+
+
+
+
+
 /* Initializes the threading system by transforming the code
    that's currently running into a thread.  This can't work in
    general and it is possible in this case only because loader.S
@@ -195,6 +244,10 @@ thread_create (const char *name, int priority,
 
   /* Add to run queue. */
   thread_unblock (t);
+		
+	if (tid != -1){
+		list_insert(&thread_current()->cs_list, &t->cs->elem);
+	}
 
   return tid;
 }
@@ -287,11 +340,11 @@ thread_exit (void)
       file_close(t->fileArray[i]);
       t->fileArray[i] = NULL;
     }
-  }
-	
-	
+  }	
 
-	free( t->children )
+	parent_exit(t);
+	reduce_ref_count(t->cs);
+	t->cs = NULL;
 
 #endif
 
@@ -456,7 +509,7 @@ init_thread (struct thread *t, const char *name, int priority)
 		for (i = 0; i < 128; ++i){
 			t->fileArray[i] = NULL;
 	 	}
-		list_init(t->cs_list);	
+		list_init(&t->cs_list);	
   #endif
 }
 
@@ -574,36 +627,6 @@ allocate_tid (void)
 /* Offset of `stack' member within `struct thread'.
    Used by switch.S, which can't figure it out on its own. */
 uint32_t thread_stack_ofs = offsetof (struct thread, stack);
-
-void parent_exit(struct thread *t){		
-	struct list_elem* e = list_begin(t->children); 
-
-	while(e != list_end(t->children)){
-		struct child_status* cs = list_entry(e, struct thread, c_list_elem);
-		
-		reduce_ref_count(cs);
-		e = list_remove(e);		
-	}
-
-}
-
-void reduce_ref_count(struct child_status* cs){
-	lock_acquire(&cs->l);
-	cs->ref_count--;
-	if (ref_count == 0){
-		free(cs);
-	} else if (ref_count == 1){
-		sema_up(&cs->s);
-	}
-	lock_release(&cs->l);
-}
-
-void cs_init(struct child_status* cs, int tid){
-	sema_init(&cs->s, 0);
-	lock_init(&cs->l);
-	cs->refcount = 2;
-  cs->c_tid = tid;
-}
 
 
 

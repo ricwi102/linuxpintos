@@ -12,8 +12,15 @@ void process_activate (void);
 struct help_struct{
 	struct semaphore* s;
 	char* file_name; 
-	bool* success;
+	bool success;
 };
+
+struct help_rStruct{
+	tid_t tid;
+	struct child_status* cs;
+};
+
+void help_sct_init(struct help_struct* h_sct, char* f_n);
 
 
 #endif /* userprog/process.h */
