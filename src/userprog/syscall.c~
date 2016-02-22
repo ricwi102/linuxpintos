@@ -3,6 +3,8 @@
 #include <syscall-nr.h>
 #include "threads/interrupt.h"
 #include "threads/thread.h"
+#include "userprog/process.h"
+#include "filesys/file.h"
 
 static void syscall_handler (struct intr_frame *);
 int addFile(struct file *f);
@@ -82,7 +84,7 @@ syscall_handler (struct intr_frame *f UNUSED)
 			f->eax = size;
       }else{   
        	struct file* openFile = fdOpen(fileWriteDescriptor);        
-			if (openFile != NULL /*&& openFile->deny_write == false*/){
+			if (openFile != NULL){
         f->eax = file_write(openFile,buffer,size);
       } else {
       	f->eax = -1;
@@ -97,15 +99,18 @@ syscall_handler (struct intr_frame *f UNUSED)
 			f->eax = exit_value;
       break; }
   case SYS_EXEC:{
+			printf("---- EXEC ---- \n");
       const char *filename = (const char*)(*(p + 1));
 			int pid = process_execute(filename);
-			if (pid = TID_ERROR) f->eax =  -1;
+			printf("%i", pid);
+			printf("\n");
+			if (pid == TID_ERROR) { f->eax =  -1; }
 			else f->eax = pid;				
-  }
+  		break; }
   case SYS_WAIT:{
-		int exit_value = process_wait((tid_t) (*(p + 1)));
-		f->eax = exit_value;
-  }
+			int exit_value = process_wait((tid_t) (*(p + 1)));
+			f->eax = exit_value;
+  		break; }
   default:{
       printf ("default system call! SYS_NR: ");
       printf ("%d \n",*p);

@@ -255,7 +255,10 @@ thread_create (const char *name, int priority,
 		
 	/* Adds child_status to the list if the thread could be created */ // Changed from original
 	if (tid != -1){
-		list_push_back(&thread_current()->cs_list, &t->cs->elem);
+		printf("CHILD -> LIST \n");
+		list_push_back(&thread_current()->cs_list, &cs->elem);
+	} else {
+		free(cs);
 	}
 
   return tid;

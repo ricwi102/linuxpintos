@@ -63,8 +63,13 @@ process_execute (const char *file_name)
 	
   sema_down(&help_sct.s);
 
-  if (tid == TID_ERROR && !help_sct->success)
+	printf("%i", help_sct.success);
+	printf(" : help_sct success  \n");
+
+  if (tid == TID_ERROR || !help_sct.success){
     palloc_free_page (fn_copy); 
+		return TID_ERROR;
+	}
   return tid;
 }
 
@@ -87,10 +92,11 @@ start_process (void* aux)
   success = load (file_name, &if_.eip, &if_.esp);
 
   help_sct->success = success;
+	printf("%i", success);
+	printf(" : success  \n");
   sema_up(&help_sct->s);
 
   /* If load failed, quit. */
-  palloc_free_page (file_name);
   if (!success) {
     thread_exit ();
 	}
@@ -115,14 +121,22 @@ start_process (void* aux)
    This function will be implemented in problem 2-2.  For now, it
    does nothing. */
 int
-process_wait (tid_t child_tid UNUSED) 
+process_wait (tid_t child_tid) 
 {  
 	struct thread* t = thread_current();
 	struct list_elem* e = list_begin(&t->cs_list);
 	int exit_value = -1;
 
+
+	printf("%i", child_tid);
+	printf(" : process wait c_tid \n");
+	printf("%i", list_size(&t->cs_list));
+	printf(" : process wait list_size \n");
+
 	for (e = list_begin(&t->cs_list); e != list_begin(&t->cs_list); e = list_next(e)){
 			struct child_status* cs = list_entry(e, struct child_status, elem);
+			printf("%i", cs->c_tid);
+			printf(" : CHILD_TID  \n");
 			if (cs->c_tid == child_tid){
 				exit_value = get_exit_value(cs);
 				reduce_ref_count(cs);
