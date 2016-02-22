@@ -10,7 +10,7 @@ void process_activate (void);
 
 
 struct help_struct{
-	struct semaphore* s;
+	struct semaphore s;
 	char* file_name; 
 	bool success;
 };

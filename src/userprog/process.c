@@ -26,9 +26,7 @@ static bool load (const char *cmdline, void (**eip) (void), void **esp);
 
 
 void help_sct_init(struct help_struct* h_sct, char* f_n){
-	struct semaphore* s;
-	sema_init(s, 0);
-	h_sct->s = s;
+	sema_init(&h_sct->s, 0);
 	h_sct->file_name = f_n;
 	h_sct->success = false;
 }
@@ -57,15 +55,15 @@ process_execute (const char *file_name)
   strlcpy (fn_copy, file_name, PGSIZE);
   
 
-  struct help_struct* help_sct;
-	help_sct_init(help_sct, fn_copy);
+  struct help_struct help_sct;
+	help_sct_init(&help_sct, fn_copy);
 
   /* Create a new thread to execute FILE_NAME. */
-  tid = thread_create (file_name, PRI_DEFAULT, start_process, help_sct);
+  tid = thread_create (file_name, PRI_DEFAULT, start_process, &help_sct);
 	
-  sema_down(help_sct->s);
+  sema_down(&help_sct.s);
 
-  if (tid == TID_ERROR || help_sct->success)
+  if (tid == TID_ERROR && !help_sct.success)
     palloc_free_page (fn_copy); 
   return tid;
 }
@@ -89,7 +87,7 @@ start_process (void* aux)
   success = load (file_name, &if_.eip, &if_.esp);
 
   help_sct->success = success;
-  sema_up(help_sct->s);
+  sema_up(&help_sct->s);
 
   /* If load failed, quit. */
   palloc_free_page (file_name);

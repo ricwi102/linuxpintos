@@ -15,11 +15,6 @@ struct help_struct{
 	bool success;
 };
 
-struct help_rStruct{
-	tid_t tid;
-	struct child_status* cs;
-};
-
 void help_sct_init(struct help_struct* h_sct, char* f_n);
 
 

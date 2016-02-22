@@ -99,7 +99,7 @@ syscall_handler (struct intr_frame *f UNUSED)
   case SYS_EXEC:{
       const char *filename = (const char*)(*(p + 1));
 			int pid = process_execute(filename);
-			if (pid = TID_ERROR) f->eax =  -1;
+			if (pid = TID_ERROR) { f->eax =  -1; }
 			else f->eax = pid;				
   }
   case SYS_WAIT:{

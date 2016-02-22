@@ -11,6 +11,7 @@
 #include "threads/switch.h"
 #include "threads/synch.h"
 #include "threads/vaddr.h"
+#include "threads/malloc.h"
 #ifdef USERPROG
 #include "userprog/process.h"
 #endif
@@ -89,14 +90,16 @@ void parent_exit(struct thread *t){
 }
 
 void reduce_ref_count(struct child_status* cs){
-	lock_acquire(&cs->l);
-	cs->ref_count--;
-	if (cs->ref_count == 0){
-		free(cs);
-	} else if (cs->ref_count == 1){
-		sema_up(&cs->s);
+	if (cs != NULL){
+		lock_acquire(&cs->l);
+		cs->ref_count--;
+		if (cs->ref_count == 0){
+			free(cs);
+		} else if (cs->ref_count == 1){
+			sema_up(&cs->s);
+		}
+		lock_release(&cs->l);
 	}
-	lock_release(&cs->l);
 }
 
 void cs_init(struct child_status* cs, tid_t tid){
@@ -225,8 +228,13 @@ thread_create (const char *name, int priority,
 
   /* Initialize thread. */
   init_thread (t, name, priority);
-  tid = t->tid = allocate_tid ();
-	cs_init(t->cs, tid);
+  tid = allocate_tid ();
+	t->tid = tid;
+	
+	/* Initialize child_status */ // Changed from original
+	struct child_status* cs = (struct child_status*)malloc(sizeof(struct child_status));
+	cs_init(cs, tid);
+	t->cs = cs;
 
   /* Stack frame for kernel_thread(). */
   kf = alloc_frame (t, sizeof *kf);
@@ -245,6 +253,7 @@ thread_create (const char *name, int priority,
   /* Add to run queue. */
   thread_unblock (t);
 		
+	/* Adds child_status to the list if the thread could be created */ // Changed from original
 	if (tid != -1){
 		list_push_back(&thread_current()->cs_list, &t->cs->elem);
 	}
@@ -504,6 +513,8 @@ init_thread (struct thread *t, const char *name, int priority)
   t->stack = (uint8_t *) t + PGSIZE;
   t->priority = priority;
   t->magic = THREAD_MAGIC;
+
+	// Changes from original
   #ifdef USERPROG
 		unsigned int i;
 		for (i = 0; i < 128; ++i){
@@ -511,6 +522,7 @@ init_thread (struct thread *t, const char *name, int priority)
 	 	}
 		list_init(&t->cs_list);	
   #endif
+		t->cs = NULL;
 }
 
 /* Allocates a SIZE-byte frame at the top of thread T's stack and
