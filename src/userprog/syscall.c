@@ -77,19 +77,19 @@ syscall_handler (struct intr_frame *f UNUSED)
       buffer = (const void*)(*(p + 2));
       size = *(p + 3);
       if(fileWriteDescriptor == STDOUT_FILENO){
-			static const size_t chunk_size_max = 200;
-			for (i = 0; i <= (size/chunk_size_max); ++i){
-	  		size_t chunk_size = (size / chunk_size_max) > i ? chunk_size_max : (size % chunk_size_max);
-       	putbuf((buffer + i*chunk_size_max), chunk_size);          
-			}
-			f->eax = size;
-      }else{   
-       	struct file* openFile = fdOpen(fileWriteDescriptor);        
-			if (openFile != NULL){
-        f->eax = file_write(openFile,buffer,size);
-      } else {
-      	f->eax = -1;
-      }
+				static const size_t chunk_size_max = 200;
+				for (i = 0; i <= (size/chunk_size_max); ++i){
+	  			size_t chunk_size = (size / chunk_size_max) > i ? chunk_size_max : (size % chunk_size_max);
+       		putbuf((buffer + i*chunk_size_max), chunk_size);          
+				}	
+				f->eax = size;
+      	}else{   
+       		struct file* openFile = fdOpen(fileWriteDescriptor);        
+				if (openFile != NULL){
+        	f->eax = file_write(openFile,buffer,size);
+      	} else {
+      		f->eax = -1;
+      	}
       }
       break; }
   case SYS_EXIT:{
@@ -99,9 +99,8 @@ syscall_handler (struct intr_frame *f UNUSED)
       //Freed the file-array in thread_exit()      
 			f->eax = exit_value;
       break; }
-  case SYS_EXEC:{
-			printf("---- EXEC ---- \n");
-      const char *filename = (const char*)(*(p + 1));
+  case SYS_EXEC:{		;
+      char *filename = (const char*)(*(p + 1));
 			int pid = process_execute(filename);
 			printf("%i", pid);
 			printf("\n");

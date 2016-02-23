@@ -105,5 +105,5 @@ int main(void)
   }
 
   printf("Test passed\n");
-  halt();
+  exit(0);
 }

@@ -90,15 +90,15 @@ void parent_exit(struct thread *t){
 }
 
 void reduce_ref_count(struct child_status* cs){
-	if (cs != NULL){
+	if (cs != NULL){		
 		lock_acquire(&cs->l);
 		cs->ref_count--;
+		lock_release(&cs->l);	
 		if (cs->ref_count == 0){
 			free(cs);
-		} else if (cs->ref_count == 1){
+		}else if (cs->ref_count == 1){
 			sema_up(&cs->s);
 		}
-		lock_release(&cs->l);
 	}
 }
 

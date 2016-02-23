@@ -18,7 +18,7 @@ main (void)
       printf ("--");
       read_line (command, sizeof command);
 
-			printf("Test 2 \n");
+	printf("Test 2 \n");
       
       /* Execute command. */
       if (!strcmp (command, "exit"))

@@ -91,14 +91,18 @@ void parent_exit(struct thread *t){
 
 void reduce_ref_count(struct child_status* cs){
 	if (cs != NULL){
+		printf("BEFORE OUR LOCK \n");
 		lock_acquire(&cs->l);
 		cs->ref_count--;
+		printf("BETWEEN1 OUR LOCK \n");
 		if (cs->ref_count == 0){
 			free(cs);
-		} else if (cs->ref_count == 1){
+		}else if (cs->ref_count == 1){
 			sema_up(&cs->s);
 		}
-		lock_release(&cs->l);
+		printf("BETWEEN2 OUR LOCK \n");
+		lock_release(&cs->l);				
+		printf("AFTER OUR LOCK \n");
 	}
 }
 
@@ -255,7 +259,7 @@ thread_create (const char *name, int priority,
 		
 	/* Adds child_status to the list if the thread could be created */ // Changed from original
 	if (tid != -1){
-		print("CHILD -> LIST \n");
+		printf("CHILD -> LIST \n");
 		list_push_back(&thread_current()->cs_list, &cs->elem);
 	} else {
 		free(cs);

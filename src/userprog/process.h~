@@ -10,9 +10,11 @@ void process_activate (void);
 
 
 struct help_struct{
-	struct semaphore* s;
+	struct semaphore s;
 	char* file_name; 
 	bool success;
+  static char* argv[32];
+  int8_t argc;
 };
 
 void help_sct_init(struct help_struct* h_sct, char* f_n);
