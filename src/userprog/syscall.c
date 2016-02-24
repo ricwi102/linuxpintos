@@ -99,7 +99,7 @@ syscall_handler (struct intr_frame *f UNUSED)
       //Freed the file-array in thread_exit()      
 			f->eax = exit_value;
       break; }
-  case SYS_EXEC:{		;
+  case SYS_EXEC:{
       char *filename = (const char*)(*(p + 1));
 			int pid = process_execute(filename);
 			printf("%i", pid);

@@ -46,63 +46,63 @@ split_string(char* str, struct help_struct *help_sct){
 	help_sct->argc = i;
 }
 
-void stack_init(char* argv[32], int8_t argc){
-	char *esp = (char*)thread_current()->stack;
+void stack_init(char* argv[32], int8_t argc, void **esp){
   int8_t i = argc;
 	int8_t offset = 0;
-	printf("%X: PHYS_BASE \n",esp);	
+	char *stackpointer = ((char*)*esp);
+	printf("%X: PHYS_BASE \n",stackpointer);	
+	
 	
   // Writing argument values 
 	while(i > 0){
 		i--;
 		char *arg = argv[i];
 		int8_t size = strlen(arg) + 1;
-		esp = esp - size;
-		strlcpy(esp,arg,size);
-		argv[i] = esp;
-		printf("%X: %s \n",esp,arg);
+		stackpointer = stackpointer - size;
+		strlcpy(stackpointer,arg,size);
+		argv[i] = stackpointer;
+		printf("%X: %s (arg %d value) \n",stackpointer,arg,i);
 		offset = (offset + size)%4;
 	}
 	// Writing NULL sentinel
 	while(offset != 0){
-		esp--;
-		*esp = NULL;
+		stackpointer--;
+		*stackpointer = NULL;
 		offset = (offset + 1)%4;
 	}
-	printf("%X: %s \n",esp,*esp);
+	printf("%X: %s (sentinel) \n",stackpointer,*stackpointer);
 	// Writing argv[argc] (= 0)
-	esp = esp - 4;
-	*esp = NULL;
-	printf("%X: %s \n",esp,*esp);
+	stackpointer = stackpointer - 4;
+	*stackpointer = NULL;
+	printf("%X: %s (arg %d adress) \n",stackpointer,*stackpointer, argc);
 	
 	// Writing argument adresses
 	i = argc;
 	while(i > 0){
 		i--;
 		char *adress = argv[i];
-		esp = esp - 4;
-		*((char**)esp) = adress;	
-		printf("%X: %X \n",esp,adress);	
+		stackpointer = stackpointer - 4;
+		*((char**)stackpointer) = adress;	
+		printf("%X: %X (arg %d adress) \n",stackpointer,adress,i);	
 	}
 
 	// Writing argv
-	esp = esp - 4;
-	*((char**)esp) = esp + 4;
-	printf("%X: %X \n",esp,esp + 4);	
+	stackpointer = stackpointer - 4;
+	*((char**)stackpointer) = stackpointer + 4;
+	printf("%X: %X (argv) \n",stackpointer,stackpointer + 4);	
 
 	// Writing argc
-	esp = esp - 4;
-	*esp = argc;
-	printf("%X: %d \n",esp,argc);	
+	stackpointer = stackpointer - 4;
+	*stackpointer = argc;
+	printf("%X: %d (argc) \n",stackpointer,argc);	
 
 	// Writing a NULL return adress
-	esp = esp - 4;
-	*esp = NULL;
-	printf("%X: %s \n",esp,*esp);
+	stackpointer = stackpointer - 4;
+	*stackpointer = NULL;
+	printf("%X: %s (return adress) \n",stackpointer,*stackpointer);
 	
-  
-	thread_current()->stack = esp;
-	hex_dump(12,thread_current()->stack,52,true);
+	*esp = stackpointer;
+	hex_dump(12,stackpointer,64,true);
 }
 
 
@@ -155,14 +155,15 @@ start_process (void* aux)
   struct intr_frame if_;
   bool success;
 
-	//stack_init(help_sct->argv,help_sct->argc);
-
   /* Initialize interrupt frame and load executable. */
   memset (&if_, 0, sizeof if_);
   if_.gs = if_.fs = if_.es = if_.ds = if_.ss = SEL_UDSEG;
   if_.cs = SEL_UCSEG;
   if_.eflags = FLAG_IF | FLAG_MBS;
+
   success = load (file_name, &if_.eip, &if_.esp);
+	stack_init(help_sct->argv,help_sct->argc,&if_.esp);
+	
 
   help_sct->success = success;
 	
@@ -359,7 +360,7 @@ load (const char *file_name, void (**eip) (void), void **esp)
    /* Uncomment the following line to print some debug
      information. This will be useful when you debug the program
      stack.*/
-/*#define STACK_DEBUG*/
+//#define STACK_DEBUG*/
 
 #ifdef STACK_DEBUG
   printf("*esp is %p\nstack contents:\n", *esp);
@@ -606,7 +607,7 @@ setup_stack (void **esp)
     {
       success = install_page (((uint8_t *) PHYS_BASE) - PGSIZE, kpage, true);
       if (success)
-        *esp = PHYS_BASE - 12;
+        *esp = PHYS_BASE;
       else
         palloc_free_page (kpage);
     }
