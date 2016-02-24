@@ -46,37 +46,63 @@ split_string(char* str, struct help_struct *help_sct){
 	help_sct->argc = i;
 }
 
-void stack_init(char* argv, int8_t argc){
+void stack_init(char* argv[32], int8_t argc){
 	char *esp = (char*)thread_current()->stack;
   int8_t i = argc;
 	int8_t offset = 0;
+	printf("%X: PHYS_BASE \n",esp);	
+	
+  // Writing argument values 
 	while(i > 0){
 		i--;
 		char *arg = argv[i];
-		int hej = strlen(arg);
-		esp = esp - hej;
-		*esp = arg;
+		int8_t size = strlen(arg) + 1;
+		esp = esp - size;
+		strlcpy(esp,arg,size);
 		argv[i] = esp;
-		offset = (offset + strlen(arg))%4;
+		printf("%X: %s \n",esp,arg);
+		offset = (offset + size)%4;
 	}
-	esp = esp - (8-offset);
+	// Writing NULL sentinel
+	while(offset != 0){
+		esp--;
+		*esp = NULL;
+		offset = (offset + 1)%4;
+	}
+	printf("%X: %s \n",esp,*esp);
+	// Writing argv[argc] (= 0)
+	esp = esp - 4;
 	*esp = NULL;
+	printf("%X: %s \n",esp,*esp);
+	
+	// Writing argument adresses
 	i = argc;
 	while(i > 0){
 		i--;
 		char *adress = argv[i];
 		esp = esp - 4;
-		*esp = adress;		
+		*((char**)esp) = adress;	
+		printf("%X: %X \n",esp,adress);	
 	}
 
+	// Writing argv
 	esp = esp - 4;
-	*esp = esp+4;
+	*((char**)esp) = esp + 4;
+	printf("%X: %X \n",esp,esp + 4);	
 
+	// Writing argc
 	esp = esp - 4;
 	*esp = argc;
+	printf("%X: %d \n",esp,argc);	
 
+	// Writing a NULL return adress
 	esp = esp - 4;
 	*esp = NULL;
+	printf("%X: %s \n",esp,*esp);
+	
+  
+	thread_current()->stack = esp;
+	hex_dump(12,thread_current()->stack,52,true);
 }
 
 
@@ -129,7 +155,7 @@ start_process (void* aux)
   struct intr_frame if_;
   bool success;
 
-	stack_init(help_sct->argv,help_sct->argc);
+	//stack_init(help_sct->argv,help_sct->argc);
 
   /* Initialize interrupt frame and load executable. */
   memset (&if_, 0, sizeof if_);
@@ -139,10 +165,11 @@ start_process (void* aux)
   success = load (file_name, &if_.eip, &if_.esp);
 
   help_sct->success = success;
-	printf("%i", success);
-	printf(" : success  \n");
+	
   sema_up(&help_sct->s);
 
+	printf("%i", success);
+	printf(" : success  \n");
   /* If load failed, quit. */
   if (!success) {
     thread_exit ();
@@ -579,7 +606,7 @@ setup_stack (void **esp)
     {
       success = install_page (((uint8_t *) PHYS_BASE) - PGSIZE, kpage, true);
       if (success)
-        *esp = PHYS_BASE;
+        *esp = PHYS_BASE - 12;
       else
         palloc_free_page (kpage);
     }
