@@ -11,14 +11,12 @@ main (void)
 {
   printf ("Shell starting...\n");
   for (;;) 
-    {
+  {
       char command[80];
 
       /* Read command. */
       printf ("--");
       read_line (command, sizeof command);
-
-	printf("Test 2 \n");
       
       /* Execute command. */
       if (!strcmp (command, "exit"))
@@ -28,15 +26,13 @@ main (void)
           if (!chdir (command + 3))
             printf ("\"%s\": chdir failed\n", command + 3);
         }
-      else if (command[0] == '\0') 
+      else if (command[0] == '\0')
         {
           /* Empty command. */
         }
       else
         {
           pid_t pid = exec (command);
-					printf("%i", pid);
-					printf(" : pid \n");
           if (pid != PID_ERROR)
             printf ("\"%s\": exit code %d\n", command, wait (pid));
           else
@@ -55,7 +51,6 @@ main (void)
 static void
 read_line (char line[], size_t size) 
 {
-	printf("Test 1 \n");
   char *pos = line;
   for (;;)
     {

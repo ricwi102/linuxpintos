@@ -40,7 +40,10 @@ split_string(char* str, struct help_struct *help_sct){
 	int8_t i = 0;
 	for (token = strtok_r (str, delim, &save_ptr); 
 	token != NULL; token = strtok_r(NULL, delim, &save_ptr)){
-		help_sct->argv[i] = token;
+		char *copy;
+  	copy = palloc_get_page (0);
+  	strlcpy (copy, token, PGSIZE);
+		help_sct->argv[i] = copy;
 		++i;
 	}
 	help_sct->argc = i;
@@ -69,8 +72,8 @@ void stack_init(char* argv[32], int8_t argc, void **esp){
 		stackpointer--;
 		*stackpointer = NULL;
 		offset = (offset + 1)%4;
+		printf("%X: %s (sentinel) \n",stackpointer,*stackpointer);
 	}
-	printf("%X: %s (sentinel) \n",stackpointer,*stackpointer);
 	// Writing argv[argc] (= 0)
 	stackpointer = stackpointer - 4;
 	*stackpointer = NULL;
@@ -116,31 +119,27 @@ process_execute (const char *file_name)
 {
   char *fn_copy;
   tid_t tid;
-  struct help_struct help_sct;
-  split_string(file_name,&help_sct);
+  struct help_struct *help_sct = (struct help_struct*)malloc(sizeof(struct help_struct));
+  split_string(file_name,help_sct);
   /* Make a copy of FILE_NAME.
      Otherwise there's a race between the caller and load(). */
   fn_copy = palloc_get_page (0);
   if (fn_copy == NULL)
     return TID_ERROR;
-  strlcpy (fn_copy, help_sct.argv[0], PGSIZE);
+  strlcpy (fn_copy, help_sct->argv[0], PGSIZE);
   
-
-  
-	help_sct_init(&help_sct, fn_copy);
+	help_sct_init(help_sct, fn_copy);
 
   /* Create a new thread to execute FILE_NAME. */
-  tid = thread_create (help_sct.argv[0], PRI_DEFAULT, start_process, &help_sct);
+  tid = thread_create (help_sct->argv[0], PRI_DEFAULT, start_process, help_sct);
 	
-  sema_down(&help_sct.s);
+  sema_down(&help_sct->s);
 
-	printf("%i", help_sct.success);
-	printf(" : help_sct success  \n");
-
-  if (tid == TID_ERROR || !help_sct.success){
-    palloc_free_page (fn_copy); 
-		return TID_ERROR;
+  if (tid == TID_ERROR || !help_sct->success){
+    palloc_free_page (fn_copy);
+		tid = TID_ERROR;
 	}
+	free(help_sct);
   return tid;
 }
 
@@ -162,6 +161,7 @@ start_process (void* aux)
   if_.eflags = FLAG_IF | FLAG_MBS;
 
   success = load (file_name, &if_.eip, &if_.esp);
+
 	stack_init(help_sct->argv,help_sct->argc,&if_.esp);
 	
 
@@ -169,8 +169,6 @@ start_process (void* aux)
 	
   sema_up(&help_sct->s);
 
-	printf("%i", success);
-	printf(" : success  \n");
   /* If load failed, quit. */
   if (!success) {
     thread_exit ();
@@ -202,22 +200,15 @@ process_wait (tid_t child_tid)
 	struct list_elem* e = list_begin(&t->cs_list);
 	int exit_value = -1;
 
-
-	printf("%i", child_tid);
-	printf(" : process wait c_tid \n");
-	printf("%i", list_size(&t->cs_list));
-	printf(" : process wait list_size \n");
-
-	for (e = list_begin(&t->cs_list); e != list_end(&t->cs_list); e = list_next(e)){
+	for (e = list_begin(&t->cs_list); e != list_end(&t->cs_list); e = 
+		list_next(e)){
 			struct child_status* cs = list_entry(e, struct child_status, elem);
-			printf("%i", cs->c_tid);
-			printf(" : CHILD_TID  \n");
 			if (cs->c_tid == child_tid){
+				list_remove(e);
 				exit_value = get_exit_value(cs);
 				reduce_ref_count(cs);
 				break;
 			}
-
 	}
   return exit_value;
 }

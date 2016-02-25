@@ -11,7 +11,7 @@ void process_activate (void);
 
 struct help_struct{
 	struct semaphore s;
-	char* file_name; 
+	char* file_name;
 	bool success;
   char* argv[32];
   int8_t argc;

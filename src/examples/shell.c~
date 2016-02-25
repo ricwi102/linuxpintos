@@ -11,15 +11,12 @@ main (void)
 {
   printf ("Shell starting...\n");
   for (;;) 
-    {
+  {
       char command[80];
 
       /* Read command. */
       printf ("--");
       read_line (command, sizeof command);
-
-	printf("Test 2 \n");
-        printf("%c \n",command);
       
       /* Execute command. */
       if (!strcmp (command, "exit"))
@@ -36,8 +33,6 @@ main (void)
       else
         {
           pid_t pid = exec (command);
-					printf("%i", pid);
-					printf(" : pid \n");
           if (pid != PID_ERROR)
             printf ("\"%s\": exit code %d\n", command, wait (pid));
           else
@@ -56,7 +51,6 @@ main (void)
 static void
 read_line (char line[], size_t size) 
 {
-	printf("Test 1 \n");
   char *pos = line;
   for (;;)
     {

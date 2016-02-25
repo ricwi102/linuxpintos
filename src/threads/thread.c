@@ -84,7 +84,7 @@ void parent_exit(struct thread *t){
 		struct child_status* cs = list_entry(e, struct child_status, elem);
 
 		reduce_ref_count(cs);
-		e = list_remove(e);		
+		e = list_remove(e);
 	}
 
 }
@@ -255,7 +255,6 @@ thread_create (const char *name, int priority,
 		
 	/* Adds child_status to the list if the thread could be created */ // Changed from original
 	if (tid != -1){
-		printf("CHILD -> LIST \n");
 		list_push_back(&thread_current()->cs_list, &cs->elem);
 	} else {
 		free(cs);
@@ -344,6 +343,7 @@ thread_exit (void)
 
 #ifdef USERPROG
   process_exit ();
+	
 
   unsigned int i;
   struct thread *t = thread_current();
@@ -353,10 +353,10 @@ thread_exit (void)
       t->fileArray[i] = NULL;
     }
   }	
-
 	parent_exit(t);
 	reduce_ref_count(t->cs);
 	t->cs = NULL;
+	
 
 #endif
 

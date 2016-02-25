@@ -80,29 +80,29 @@ static tid_t allocate_tid (void);
 void parent_exit(struct thread *t){		
 	struct list_elem* e = list_begin(&t->cs_list); 
 
+	printf("parent lsit_size: %i \n", list_size(&t->cs_list));
+
 	while(e != list_end(&t->cs_list)){
 		struct child_status* cs = list_entry(e, struct child_status, elem);
+		printf("TEST_p_exit 1 \n");
 
 		reduce_ref_count(cs);
 		e = list_remove(e);		
+		printf("TEST_p_exit 2 \n");
 	}
 
 }
 
 void reduce_ref_count(struct child_status* cs){
-	if (cs != NULL){
-		printf("BEFORE OUR LOCK \n");
+	if (cs != NULL){		
 		lock_acquire(&cs->l);
 		cs->ref_count--;
-		printf("BETWEEN1 OUR LOCK \n");
+		lock_release(&cs->l);	
 		if (cs->ref_count == 0){
 			free(cs);
 		}else if (cs->ref_count == 1){
 			sema_up(&cs->s);
 		}
-		printf("BETWEEN2 OUR LOCK \n");
-		lock_release(&cs->l);				
-		printf("AFTER OUR LOCK \n");
 	}
 }
 
@@ -259,7 +259,6 @@ thread_create (const char *name, int priority,
 		
 	/* Adds child_status to the list if the thread could be created */ // Changed from original
 	if (tid != -1){
-		printf("CHILD -> LIST \n");
 		list_push_back(&thread_current()->cs_list, &cs->elem);
 	} else {
 		free(cs);
@@ -348,6 +347,7 @@ thread_exit (void)
 
 #ifdef USERPROG
   process_exit ();
+	
 
   unsigned int i;
   struct thread *t = thread_current();
@@ -357,10 +357,10 @@ thread_exit (void)
       t->fileArray[i] = NULL;
     }
   }	
-
 	parent_exit(t);
 	reduce_ref_count(t->cs);
 	t->cs = NULL;
+	
 
 #endif
 
