@@ -17,7 +17,7 @@ struct help_struct{
   int8_t argc;
 };
 
-void help_sct_init(struct help_struct* h_sct, char* f_n);
+void help_sct_init(struct help_struct* h_sct);
 
 
 #endif /* userprog/process.h */

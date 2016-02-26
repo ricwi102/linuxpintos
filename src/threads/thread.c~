@@ -80,15 +80,11 @@ static tid_t allocate_tid (void);
 void parent_exit(struct thread *t){		
 	struct list_elem* e = list_begin(&t->cs_list); 
 
-	printf("parent lsit_size: %i \n", list_size(&t->cs_list));
-
 	while(e != list_end(&t->cs_list)){
 		struct child_status* cs = list_entry(e, struct child_status, elem);
-		printf("TEST_p_exit 1 \n");
 
 		reduce_ref_count(cs);
-		e = list_remove(e);		
-		printf("TEST_p_exit 2 \n");
+		e = list_remove(e);
 	}
 
 }
@@ -340,6 +336,15 @@ thread_tid (void)
 
 /* Deschedules the current thread and destroys it.  Never
    returns to the caller. */
+void
+thread_exit_with_exitcode(int exit_value){
+	#ifdef USERPROG
+		thread_current()->cs->exit_status = exit_value;
+	#endif
+	thread_exit();
+}
+
+
 void
 thread_exit (void) 
 {
