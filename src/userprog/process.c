@@ -52,7 +52,8 @@ void stack_init(char* argv[32], int8_t argc, void **esp){
   int8_t i = argc;
 	int8_t offset = 0;
 	char *stackpointer = ((char*)*esp);
-	printf("%X: PHYS_BASE \n",stackpointer);	
+	//printf("%X: PHYS_BASE \n",stackpointer);	
+	//PASSS
 	
 	
   // Writing argument values 
@@ -62,7 +63,7 @@ void stack_init(char* argv[32], int8_t argc, void **esp){
 		int8_t size = strlen(arg) + 1;
 		stackpointer = stackpointer - size;
 		strlcpy(stackpointer,arg,size);	
-		printf("%X: %s (arg %d value) \n",stackpointer,arg,i);
+		//printf("%X: %s (arg %d value) \n",stackpointer,arg,i);
 		palloc_free_page (argv[i]); // Frees page 
 		argv[i] = stackpointer;
 		offset = (offset + size)%4;
@@ -72,12 +73,12 @@ void stack_init(char* argv[32], int8_t argc, void **esp){
 		stackpointer--;
 		*stackpointer = NULL;
 		offset = (offset + 1)%4;
-		printf("%X: %s (sentinel) \n",stackpointer,*stackpointer);
+		//printf("%X: %s (sentinel) \n",stackpointer,*stackpointer);
 	}
 	// Writing argv[argc] (= 0)
 	stackpointer = stackpointer - 4;
 	*stackpointer = NULL;
-	printf("%X: %s (arg %d adress) \n",stackpointer,*stackpointer, argc);
+	//printf("%X: %s (arg %d adress) \n",stackpointer,*stackpointer, argc);
 	
 	// Writing argument adresses
 	i = argc;
@@ -86,26 +87,26 @@ void stack_init(char* argv[32], int8_t argc, void **esp){
 		char *adress = argv[i];
 		stackpointer = stackpointer - 4;
 		*((char**)stackpointer) = adress;	
-		printf("%X: %X (arg %d adress) \n",stackpointer,adress,i);	
+		//printf("%X: %X (arg %d adress) \n",stackpointer,adress,i);	
 	}
 
 	// Writing argv
 	stackpointer = stackpointer - 4;
 	*((char**)stackpointer) = stackpointer + 4;
-	printf("%X: %X (argv) \n",stackpointer,stackpointer + 4);	
+	//printf("%X: %X (argv) \n",stackpointer,stackpointer + 4);	
 
 	// Writing argc
 	stackpointer = stackpointer - 4;
 	*stackpointer = argc;
-	printf("%X: %d (argc) \n",stackpointer,argc);	
+	//printf("%X: %d (argc) \n",stackpointer,argc);	
 
 	// Writing a NULL return adress
 	stackpointer = stackpointer - 4;
 	*stackpointer = NULL;
-	printf("%X: %s (return adress) \n",stackpointer,*stackpointer);
+	//printf("%X: %s (return adress) \n",stackpointer,*stackpointer);
 	
 	*esp = stackpointer;
-	hex_dump(12,stackpointer,64,true);
+	//hex_dump(12,stackpointer,64,true);
 }
 
 

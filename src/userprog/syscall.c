@@ -33,7 +33,7 @@ syscall_handler (struct intr_frame *f UNUSED)
   case SYS_CREATE:{
       const char *filename = (const char*)(*(p + 1));
       size = *(p + 2);
-      if(*filename != NULL && size > 0){
+      if(filename != NULL && size > 0){
         f->eax = filesys_create(filename,size);
       }else{
         f->eax = false;
@@ -94,7 +94,7 @@ syscall_handler (struct intr_frame *f UNUSED)
       break; }
   case SYS_EXIT:{
 			int exit_value = (int)(*(p + 1));
-			printf("%s: exit(%d) \n", thread_current()->name, exit_value);     
+			printf("%s: exit(%d)\n", thread_current()->name, exit_value);     
 			f->eax = exit_value;
 			thread_current()->cs->exit_status = exit_value;
 			thread_exit(); //Freed the file-array in thread_exit() 

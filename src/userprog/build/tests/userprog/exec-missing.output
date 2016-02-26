@@ -1,0 +1,37 @@
+Copying tests/userprog/exec-missing into /tmp/hpFxqbeHN7.dsk...
+Writing command line to /tmp/fJuF17C3gV.dsk...
+qemu -hda /tmp/fJuF17C3gV.dsk -hdb /tmp/tUkJ_HGnkZ.dsk -hdc /tmp/hpFxqbeHN7.dsk -m 4 -net none -nographic -monitor null
+Kernel command line: -q -f put exec-missing run exec-missing
+Pintos booting with 4,088 kB RAM...
+372 pages available in kernel pool.
+371 pages available in user pool.
+Calibrating timer...  419,020,800 loops/s.
+hd0:0: detected 153 sector (76 kB) disk, model "QEMU HARDDISK", serial "QM00001"
+hd0:1: detected 4,032 sector (1 MB) disk, model "QEMU HARDDISK", serial "QM00002"
+hd1:0: detected 98 sector (49 kB) disk, model "QEMU HARDDISK", serial "QM00003"
+Formatting file system...done.
+Boot complete.
+Putting 'exec-missing' into the file system...
+Executing 'exec-missing':
+(exec-missing) begin
+load: no-such-file: open failed
+(exec-missing) exec("no-such-file"): -1
+(exec-missing) end
+exec-missing: exit(0)
+Kernel PANIC at ../../lib/kernel/list.c:171 in list_insert(): assertion `is_interior (before) || is_tail (before)' failed.
+Call stack: 0xc010717b 0x804a0f5Page fault at 0xbfffffb8: not present error reading page in kernel context.
+Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc01053b7
+ cr2=bfffffb8 error=00000000
+ eax=0000000a ebx=bfffffb8 ecx=00000750 edx=000003d4
+ esi=000000ab edi=c010caa9 esp=c010df0b ebp=c0120e04
+ cs=0008 ds=0010 es=0010 ss=a0f5
+Kernel PANIC recursion at ../../userprog/exception.c:100 in kill().
+Timer: 56 ticks
+Thread: 31 idle ticks, 24 kernel ticks, 1 user ticks
+hd0:0: 0 reads, 0 writes
+hd0:1: 76 reads, 204 writes
+hd1:0: 98 reads, 0 writes
+Console: 1381 characters output
+Keyboard: 0 keys pressed
+Exception: 1 page faults
+Powering off...
