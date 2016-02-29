@@ -119,9 +119,11 @@ tid_t
 process_execute (const char *file_name) 
 {
   //char *fn_copy;
+
   tid_t tid;
   struct help_struct *help_sct = (struct help_struct*)malloc(sizeof(struct help_struct));
   split_string(file_name,help_sct);
+
   /* Make a copy of FILE_NAME.
      Otherwise there's a race between the caller and load(). */
   /*fn_copy = palloc_get_page (0);
@@ -129,6 +131,7 @@ process_execute (const char *file_name)
     return TID_ERROR;
   strlcpy (fn_copy, help_sct->argv[0], PGSIZE);
   */
+
 	help_sct_init(help_sct);
 
   /* Create a new thread to execute FILE_NAME. */
@@ -154,6 +157,7 @@ start_process (void* aux)
   struct intr_frame if_;
   bool success;
   /* Initialize interrupt frame and load executable. */
+
   memset (&if_, 0, sizeof if_);
   if_.gs = if_.fs = if_.es = if_.ds = if_.ss = SEL_UDSEG;
   if_.cs = SEL_UCSEG;
@@ -162,6 +166,7 @@ start_process (void* aux)
 	if(success) stack_init(help_sct->argv,help_sct->argc,&if_.esp);
 	//free_argv_pages(help_sct);
 	
+	printf("%d : success \n\n", success);
 
   help_sct->success = success;
 	

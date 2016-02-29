@@ -12,8 +12,8 @@ static void syscall_handler (struct intr_frame *);
 int addFile(struct file *f);
 void removeFile(int fd);
 struct file* fdOpen(int fd);
-bool check_ptr(char* ptr);
-bool check_mult_ptrs(void* ptr, int args);
+bool valid_ptr(void* ptr);
+bool check_mult_ptr(void* ptr, int args);
 
 
 void
@@ -27,10 +27,7 @@ syscall_handler (struct intr_frame *f UNUSED)
 {
   int *p = f->esp;
   const void *buffer;
-	if (check_ptr(p)){
-		f->eax = -1;
-		sys_exit(-1);
-	} else {
+	if (valid_ptr(p)){		
 		size_t size;
 		unsigned int i;
 		switch(*p){
@@ -38,128 +35,105 @@ syscall_handler (struct intr_frame *f UNUSED)
 		    power_off();
 		    break;
 		case SYS_CREATE:{
-				if (check_mult_ptrs(p, 2)){
-						f->eax = false;
-						sys_exit(-1);
+				if (check_mult_ptr(p, 2) && valid_ptr(*(p + 1))){
+				  const char *filename = (const char*)(*(p + 1));				
+				  size = *(p + 2);
+				  if(filename != NULL && size >= 0){
+				    f->eax = filesys_create(filename,size);
+				  }else{					
+				    f->eax = false;
+						sys_exit(-1);					
+				  }
 				}
-
-		    const char *filename = (const char*)(*(p + 1));				
-		    size = *(p + 2);
-		    if(filename != NULL && size >= 0){
-		      f->eax = filesys_create(filename,size);
-		    }else{					
-		      f->eax = false;
-					sys_exit(-1);					
-		    }
 		    break; }
 		case SYS_OPEN:{
-				if (check_mult_ptrs(p, 1)){
-						f->eax = -1;
-						sys_exit(-1);
+				if (check_mult_ptr(p, 1) && valid_ptr(*(p + 1))){
+					const char *fileToOpen = (const char*)*(p + 1);     
+				  struct file* openFile = (struct file*)filesys_open(fileToOpen);
+				  if (openFile != NULL){
+				    f->eax = addFile(openFile);
+				  } else {        
+				    f->eax = -1;
+				  }
 				}
-
-		    const char *fileToOpen = (const char*)*(p + 1);     
-		    struct file* openFile = (struct file*)filesys_open(fileToOpen);
-		    if (openFile != NULL){
-		      f->eax = addFile(openFile);
-		    } else {        
-		      f->eax = -1;
-		    }
 		    break; }
 		case SYS_CLOSE:{
-				if (check_mult_ptrs(p, 1)){
-						f->eax = -1;
-						sys_exit(-1);
+				if (check_mult_ptr(p, 1)){
+					int fileCloseDescriptor = *(p + 1);
+				  file_close(fdOpen(fileCloseDescriptor));
+				  removeFile(fileCloseDescriptor);
 				}
-
-		    int fileCloseDescriptor = *(p + 1);
-		    file_close(fdOpen(fileCloseDescriptor));
-		    removeFile(fileCloseDescriptor);
 		    break; }
 		case SYS_READ:{
-				if (check_mult_ptrs(p, 3)){
-						f->eax = -1;
-						sys_exit(-1);
+				if (check_mult_ptr(p, 3) && valid_ptr(*(p + 2))){				
+				  int fileReadDescriptor = *(p + 1);      
+				  buffer = (const void*)(*(p + 2));
+					size = *(p + 3);		
+				  
+				  if(fileReadDescriptor == STDIN_FILENO){
+						for(i = 0; i < size; i++){
+							if (valid_ptr((char*)buffer + i)){
+								*((char*)buffer + i) = input_getc();
+							}								
+						}
+						  f->eax = size;
+						}
+				  else{ 
+				    struct file* openFile = fdOpen(fileReadDescriptor);  
+				    if (openFile != NULL){
+				      f->eax = file_read(openFile,buffer,size);
+				    } else {
+				      f->eax = -1;
+				    } 
+				  }
 				}
-
-		    int fileReadDescriptor = *(p + 1);      
-		    buffer = (const void*)(*(p + 2));
-				size = *(p + 3);		
-		    
-		    if(fileReadDescriptor == STDIN_FILENO){
-					for(i = 0; i < size; i++){
-						if (check_ptr((char*)buffer + i)){
-							f->eax = -1;
-							sys_exit(-1);
-						}					
-						*((char*)buffer + i) = input_getc();
-				  }
-				    	f->eax = size;
-				  }
-		    else{ 
-		      struct file* openFile = fdOpen(fileReadDescriptor);  
-		      if (openFile != NULL){
-		        f->eax = file_read(openFile,buffer,size);
-		      } else {
-		        f->eax = -1;
-		      } 
-		    }      
 		    break; }
 		case SYS_WRITE:{
-				if (check_mult_ptrs(p, 3)){
-						f->eax = false;
-						sys_exit(-1);
-				}
+				if (check_mult_ptr(p, 3) && valid_ptr(*(p + 2))){
+				  int fileWriteDescriptor = *(p + 1);
+				  buffer = (const void*)(*(p + 2));		
+				  size = *(p + 3);
 
-		    int fileWriteDescriptor = *(p + 1);
-		    buffer = (const void*)(*(p + 2));		
-		    size = *(p + 3);
-
-		    if(fileWriteDescriptor == STDOUT_FILENO){
-					static const size_t chunk_size_max = 200;
-					for (i = 0; i <= (size/chunk_size_max); ++i){
-						size_t chunk_size = (size / chunk_size_max) > i ? chunk_size_max : (size % chunk_size_max);
-		     		putbuf((buffer + i*chunk_size_max), chunk_size);          
-					}	
-					f->eax = size;
-		    	}else{   
-		     		struct file* openFile = fdOpen(fileWriteDescriptor);        
-					if (openFile != NULL){
-		      	f->eax = file_write(openFile,buffer,size);
-		    	} else {
-		    		f->eax = -1;
-		    	}
+				  if(fileWriteDescriptor == STDOUT_FILENO){
+						static const size_t chunk_size_max = 200;
+						for (i = 0; i <= (size/chunk_size_max); ++i){
+							size_t chunk_size = (size / chunk_size_max) > i ? chunk_size_max : (size % chunk_size_max);
+				   		putbuf((buffer + i*chunk_size_max), chunk_size);          
+						}	
+						f->eax = size;
+				  }else{   
+				   		struct file* openFile = fdOpen(fileWriteDescriptor);        
+						if (openFile != NULL){
+				    	f->eax = file_write(openFile,buffer,size);
+				  	} else {
+				  		f->eax = -1;
+				  	}
+					}
 		    }
 		    break; }
 		case SYS_EXIT:{
-				if (check_mult_ptrs(p, 2)){
-						f->eax = false;
-						sys_exit(-1);
+				if (check_mult_ptr(p, 2)){
+					int exit_status = (int)(*(p + 1));
+					f->eax = exit_status;
+					sys_exit(exit_status);
 				}
-
-				int exit_status = (int)(*(p + 1));
-				f->eax = exit_status;
-				sys_exit(exit_status);
 		    break; }
 		case SYS_EXEC:{
-				if (check_mult_ptrs(p, 1)){
-						f->eax = -1;
-						sys_exit(-1);
-				}
-
-				char *filename = (const char*)(*(p + 1));
-				int pid = process_execute(filename);
-				if (pid == TID_ERROR) { f->eax =  -1; }
-				else f->eax = pid;				
+				if (check_mult_ptr(p, 1) && valid_ptr(*(p + 1))){
+					char *filename = (const char*)(*(p + 1));
+					int pid = process_execute(filename);
+					if (pid == TID_ERROR) { 
+						f->eax =  -1;
+						sys_exit(-1); 
+					}
+					else f->eax = pid;		
+				}		
 				break; }
 		case SYS_WAIT:{
-				if (check_mult_ptrs(p, 1)){
-						f->eax = -1;
-						sys_exit(-1);
+				if (check_mult_ptr(p, 1)){
+					int exit_value = process_wait((tid_t) (*(p + 1)));
+					f->eax = exit_value;
 				}
-
-				int exit_value = process_wait((tid_t) (*(p + 1)));
-				f->eax = exit_value;
 				break; }
 		default:{
 		    printf ("default system call! SYS_NR: ");
@@ -169,31 +143,38 @@ syscall_handler (struct intr_frame *f UNUSED)
   }
 }
 
-		void check_ptr(char* ptr){
+
+		// Checks if a pointer is valid for that thread and exits if it is not.
+		// Valid -> Smaller than PHYS_BASE and within one of the threads pages. 
+		bool valid_ptr(void* ptr){ 
 			if (ptr >= PHYS_BASE || (pagedir_get_page(thread_current()->pagedir, ptr) == NULL)){
 				sys_exit(-1);
+				return false;
 			}
+			return true;
 		}
 	
-		bool check_mult_ptrs(void* ptr, int args){
-			if ((ptr + args) >= PHYS_BASE) {return true;}
 
+		// Checks multiple pointers with (valid_ptr(void' ptr)) starting from the
+		// pointer after th given pointer and checks (args) pointers afterwrds.  
+		bool check_mult_ptr(void* ptr, int args){
 			uint8_t i;
 			for (i = 1; i <= args; ++i){
-				if (check_ptr(*(char*)(ptr + i))) {return true;}
+				if (!valid_ptr(ptr + i)) {return false;}
+				
 			}
-			return false;
+			return true;
 		}
 
 
-
+		// exits and closes the thread with the given exit_status
 		void sys_exit(int exit_status){
 			printf("%s: exit(%d)\n", thread_current()->name, exit_status);		
 			thread_current()->cs->exit_status = exit_status;
 			thread_exit();			
 		}
 
-
+		// Adds a file to the file array if it isn't full
     int addFile(struct file *f){
       struct thread *t = thread_current();
       unsigned int i;
@@ -207,6 +188,8 @@ syscall_handler (struct intr_frame *f UNUSED)
         return -1;
     }
 
+		// Sets the position of the file descriptor to NULL.
+		// File has to have already been closed
     void removeFile(int fd){
 			if (fd >= 2 && fd < 130){
       	struct thread *t = thread_current();
@@ -214,6 +197,9 @@ syscall_handler (struct intr_frame *f UNUSED)
 			}
     }
 
+
+		// Opens a file from the filearray with the given file descriptor.
+		// returns NULL if the (fd) is out of bounds or there is no file with that (fd)
     struct file* fdOpen(int fd){
       if (fd >= 2 && fd < 130){
         struct thread *t = thread_current();				

@@ -232,7 +232,7 @@ thread_create (const char *name, int priority,
   tid = allocate_tid ();
 	t->tid = tid;
 	
-	/* Initialize child_status */ // Changed from original
+	/* Initialize child_status and allocates it*/
 	struct child_status* cs = (struct child_status*)malloc(sizeof(struct child_status));
 	cs_init(cs, tid);
 	t->cs = cs;
@@ -251,15 +251,18 @@ thread_create (const char *name, int priority,
   sf = alloc_frame (t, sizeof *sf);
   sf->eip = switch_entry;
 
-  /* Add to run queue. */
-  thread_unblock (t);
+ 
 		
 	/* Adds child_status to the list if the thread could be created */ // Changed from original
 	if (tid != -1){
-		list_push_back(&thread_current()->cs_list, &cs->elem);
+		list_push_back(&thread_current()->cs_list, &cs->elem);		
 	} else {
 		free(cs);
 	}
+
+	/* Add to run queue. */
+  thread_unblock (t);
+
 
   return tid;
 }
@@ -518,7 +521,7 @@ init_thread (struct thread *t, const char *name, int priority)
   t->priority = priority;
   t->magic = THREAD_MAGIC;
 
-	// Changes from original
+
   #ifdef USERPROG
 		unsigned int i;
 		for (i = 0; i < 128; ++i){
