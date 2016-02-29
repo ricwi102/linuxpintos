@@ -1,7 +1,7 @@
-Copying tests/userprog/write-bad-ptr into /tmp/0GhM3jSzLf.dsk...
-Copying ../../tests/userprog/sample.txt into /tmp/0GhM3jSzLf.dsk...
-Writing command line to /tmp/jx2SYwPosX.dsk...
-qemu -hda /tmp/jx2SYwPosX.dsk -hdb /tmp/R77TAqP5Df.dsk -hdc /tmp/0GhM3jSzLf.dsk -m 4 -net none -nographic -monitor null
+Copying tests/userprog/write-bad-ptr into /tmp/LXoHdgy6Wm.dsk...
+Copying ../../tests/userprog/sample.txt into /tmp/LXoHdgy6Wm.dsk...
+Writing command line to /tmp/Cy5NR9vEr5.dsk...
+qemu -hda /tmp/Cy5NR9vEr5.dsk -hdb /tmp/iTmP8CYHKi.dsk -hdc /tmp/LXoHdgy6Wm.dsk -m 4 -net none -nographic -monitor null
 Kernel command line: -q -f put write-bad-ptr put sample.txt run write-bad-ptr
 Pintos booting with 4,088 kB RAM...
 372 pages available in kernel pool.
@@ -15,25 +15,14 @@ Boot complete.
 Putting 'write-bad-ptr' into the file system...
 Putting 'sample.txt' into the file system...
 Executing 'write-bad-ptr':
-(write-bad-ptr) begin
-(write-bad-ptr) open "sample.txt"
-Page fault at 0x10123420: not present error reading page in kernel context.
-Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc0106669
- cr2=10123420 error=00000000
- eax=c011c20c ebx=0000007b ecx=00000000 edx=00000000
- esi=10123420 edi=c011c20c esp=c0113b68 ebp=00000000
- cs=0008 ds=0010 es=0010 ss=b02c
-Kernel PANIC at ../../userprog/exception.c:100 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0xc010717b.
-The `backtrace' program can make call stacks useful.
-Read "Backtraces" in the "Debugging Tools" chapter
-of the Pintos documentation for more information.
-Timer: 56 ticks
-Thread: 31 idle ticks, 24 kernel ticks, 1 user ticks
+write-bad-ptr: exit(-1)
+Execution of 'write-bad-ptr' complete.
+Timer: 59 ticks
+Thread: 31 idle ticks, 28 kernel ticks, 0 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 91 reads, 210 writes
+hd0:1: 86 reads, 210 writes
 hd1:0: 100 reads, 0 writes
-Console: 1426 characters output
+Console: 849 characters output
 Keyboard: 0 keys pressed
-Exception: 1 page faults
+Exception: 0 page faults
 Powering off...

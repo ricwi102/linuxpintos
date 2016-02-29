@@ -107,6 +107,7 @@ void cs_init(struct child_status* cs, tid_t tid){
 	lock_init(&cs->l);
 	cs->ref_count = 2;
   cs->c_tid = tid;
+	cs->exit_status = -1;
 }
 
 int get_exit_value(struct child_status* cs){

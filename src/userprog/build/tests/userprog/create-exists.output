@@ -1,6 +1,6 @@
-Copying tests/userprog/create-exists into /tmp/24fNCfI8PO.dsk...
-Writing command line to /tmp/AdxhnWvOUl.dsk...
-qemu -hda /tmp/AdxhnWvOUl.dsk -hdb /tmp/gS6iH6cQ9D.dsk -hdc /tmp/24fNCfI8PO.dsk -m 4 -net none -nographic -monitor null
+Copying tests/userprog/create-exists into /tmp/APjZt_Htl3.dsk...
+Writing command line to /tmp/cCd97C35EG.dsk...
+qemu -hda /tmp/cCd97C35EG.dsk -hdb /tmp/JAyrzTSF_Z.dsk -hdc /tmp/APjZt_Htl3.dsk -m 4 -net none -nographic -monitor null
 Kernel command line: -q -f put create-exists run create-exists
 Pintos booting with 4,088 kB RAM...
 372 pages available in kernel pool.
@@ -13,17 +13,14 @@ Formatting file system...done.
 Boot complete.
 Putting 'create-exists' into the file system...
 Executing 'create-exists':
-(create-exists) begin
-(create-exists) create quux.dat
-(create-exists) create quux.dat: FAILED
-create-exists: exit(1)
+create-exists: exit(-1)
 Execution of 'create-exists' complete.
-Timer: 57 ticks
-Thread: 33 idle ticks, 24 kernel ticks, 0 user ticks
+Timer: 59 ticks
+Thread: 34 idle ticks, 25 kernel ticks, 0 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 60 reads, 206 writes
 hd1:0: 99 reads, 0 writes
-Console: 880 characters output
+Console: 787 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

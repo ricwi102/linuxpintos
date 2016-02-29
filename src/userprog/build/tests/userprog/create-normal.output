@@ -1,6 +1,6 @@
-Copying tests/userprog/create-normal into /tmp/krq9B9_Lxd.dsk...
-Writing command line to /tmp/CpdDShGTFH.dsk...
-qemu -hda /tmp/CpdDShGTFH.dsk -hdb /tmp/1nfhOLG2Ch.dsk -hdc /tmp/krq9B9_Lxd.dsk -m 4 -net none -nographic -monitor null
+Copying tests/userprog/create-normal into /tmp/q4yLZAoQKy.dsk...
+Writing command line to /tmp/qv7AT1xhmv.dsk...
+qemu -hda /tmp/qv7AT1xhmv.dsk -hdb /tmp/aDRsWg9jNK.dsk -hdc /tmp/q4yLZAoQKy.dsk -m 4 -net none -nographic -monitor null
 Kernel command line: -q -f put create-normal run create-normal
 Pintos booting with 4,088 kB RAM...
 372 pages available in kernel pool.
@@ -13,17 +13,14 @@ Formatting file system...done.
 Boot complete.
 Putting 'create-normal' into the file system...
 Executing 'create-normal':
-(create-normal) begin
-(create-normal) create quux.dat
-(create-normal) create quux.dat: FAILED
-create-normal: exit(1)
+create-normal: exit(-1)
 Execution of 'create-normal' complete.
 Timer: 58 ticks
-Thread: 31 idle ticks, 26 kernel ticks, 1 user ticks
+Thread: 31 idle ticks, 27 kernel ticks, 0 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 59 reads, 204 writes
 hd1:0: 98 reads, 0 writes
-Console: 880 characters output
+Console: 787 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

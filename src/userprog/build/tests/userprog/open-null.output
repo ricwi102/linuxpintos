@@ -1,11 +1,11 @@
-Copying tests/userprog/open-null into /tmp/1kQV7MJFJP.dsk...
-Writing command line to /tmp/lyV8B4Swvn.dsk...
-qemu -hda /tmp/lyV8B4Swvn.dsk -hdb /tmp/zUczorDk7Z.dsk -hdc /tmp/1kQV7MJFJP.dsk -m 4 -net none -nographic -monitor null
+Copying tests/userprog/open-null into /tmp/zSvAC6hzVD.dsk...
+Writing command line to /tmp/RkHXzQWa_z.dsk...
+qemu -hda /tmp/RkHXzQWa_z.dsk -hdb /tmp/R8bvIkNLCD.dsk -hdc /tmp/zSvAC6hzVD.dsk -m 4 -net none -nographic -monitor null
 Kernel command line: -q -f put open-null run open-null
 Pintos booting with 4,088 kB RAM...
 372 pages available in kernel pool.
 371 pages available in user pool.
-Calibrating timer...  314,163,200 loops/s.
+Calibrating timer...  419,020,800 loops/s.
 hd0:0: detected 153 sector (76 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 4,032 sector (1 MB) disk, model "QEMU HARDDISK", serial "QM00002"
 hd1:0: detected 97 sector (48 kB) disk, model "QEMU HARDDISK", serial "QM00003"
@@ -13,18 +13,14 @@ Formatting file system...done.
 Boot complete.
 Putting 'open-null' into the file system...
 Executing 'open-null':
-(open-null) begin
-Kernel PANIC at ../../filesys/directory.c:125 in dir_lookup(): assertion `name != NULL' failed.
-Call stack: 0xc010717b 0x804a15f 0x80480af.
-The `backtrace' program can make call stacks useful.
-Read "Backtraces" in the "Debugging Tools" chapter
-of the Pintos documentation for more information.
-Timer: 57 ticks
-Thread: 30 idle ticks, 27 kernel ticks, 0 user ticks
+open-null: exit(-1)
+Execution of 'open-null' complete.
+Timer: 56 ticks
+Thread: 33 idle ticks, 22 kernel ticks, 1 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 60 reads, 202 writes
+hd0:1: 59 reads, 202 writes
 hd1:0: 97 reads, 0 writes
-Console: 1020 characters output
+Console: 763 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

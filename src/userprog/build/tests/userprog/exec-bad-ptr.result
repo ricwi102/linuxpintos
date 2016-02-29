@@ -1,13 +1,18 @@
 FAIL
-Kernel panic in run: PANIC at ../../userprog/exception.c:100 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0xc010717b 0xc0106b66 0x804a116 0x80480af
-Translation of call stack:
-In kernel.o:
-0xc010717b: debug_panic (.../../lib/kernel/debug.c:34)
-0xc0106b66: strtok_r (...g.c:249 (discriminator 1))
-In tests/userprog/exec-bad-ptr:
-0x0804a116: exec (.../../lib/user/syscall.c:81)
-0x080480af: test_main (...serprog/exec-bad-ptr.c:11)
-Translations of user virtual addresses above are based on a guess at
-the binary to use.  If this guess is incorrect, then those
-translations will be misleading.
+Test output failed to match any acceptable form.
+
+Acceptable output:
+  (exec-bad-ptr) begin
+  (exec-bad-ptr) end
+  exec-bad-ptr: exit(0)
+Differences in `diff -u' format:
+- (exec-bad-ptr) begin
+- (exec-bad-ptr) end
+- exec-bad-ptr: exit(0)
++ exec-bad-ptr: exit(-1)
+Acceptable output:
+  (exec-bad-ptr) begin
+  exec-bad-ptr: exit(-1)
+Differences in `diff -u' format:
+- (exec-bad-ptr) begin
+  exec-bad-ptr: exit(-1)
