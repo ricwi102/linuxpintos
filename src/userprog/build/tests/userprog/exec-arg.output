@@ -1,7 +1,7 @@
-Copying tests/userprog/exec-arg into /tmp/RfK41eP01D.dsk...
-Copying tests/userprog/child-args into /tmp/RfK41eP01D.dsk...
-Writing command line to /tmp/G2cWpRoq3F.dsk...
-qemu -hda /tmp/G2cWpRoq3F.dsk -hdb /tmp/CQgwSXbQVQ.dsk -hdc /tmp/RfK41eP01D.dsk -m 4 -net none -nographic -monitor null
+Copying tests/userprog/exec-arg into /tmp/f9wD6E_l4K.dsk...
+Copying tests/userprog/child-args into /tmp/f9wD6E_l4K.dsk...
+Writing command line to /tmp/w96Uf3RMja.dsk...
+qemu -hda /tmp/w96Uf3RMja.dsk -hdb /tmp/tUAbjdYiwB.dsk -hdc /tmp/f9wD6E_l4K.dsk -m 4 -net none -nographic -monitor null
 Kernel command line: -q -f put exec-arg put child-args run exec-arg
 Pintos booting with 4,088 kB RAM...
 372 pages available in kernel pool.
@@ -15,7 +15,12 @@ Boot complete.
 Putting 'exec-arg' into the file system...
 Putting 'child-args' into the file system...
 Executing 'exec-arg':
+Input: exec-arg
+STR: exec-arg
+TEST3
 (exec-arg) begin
+Input: child-args childarg
+STR: child-args childarg
 Page fault at 0x804a672: rights violation error writing page in kernel context.
 Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc0106ba1
  cr2=0804a672 error=00000003
@@ -27,15 +32,15 @@ Call stack: 0xc010717b 0xc0106ba1Page fault at 0x20: not present error reading p
 Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc01053b7
  cr2=00000020 error=00000000
  eax=0000000b ebx=00000020 ecx=000007a1 edx=000003d4
- esi=00000064 edi=c010ce45 esp=c010e0eb ebp=c0120db8
+ esi=00000064 edi=c010ce85 esp=c010e12b ebp=c0120db8
  cs=0008 ds=0010 es=0010 ss=6ba1
 Kernel PANIC recursion at ../../userprog/exception.c:100 in kill().
 Timer: 63 ticks
-Thread: 34 idle ticks, 28 kernel ticks, 1 user ticks
+Thread: 35 idle ticks, 25 kernel ticks, 3 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 86 reads, 398 writes
 hd1:0: 194 reads, 0 writes
-Console: 1592 characters output
+Console: 1680 characters output
 Keyboard: 0 keys pressed
 Exception: 2 page faults
 Powering off...

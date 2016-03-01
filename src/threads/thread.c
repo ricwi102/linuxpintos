@@ -77,16 +77,15 @@ static tid_t allocate_tid (void);
 /* Reduces the ref_count of all the given threads 
 	 children and removes them from its list */
 
-void parent_exit(struct thread *t){		
-	struct list_elem* e = list_begin(&t->cs_list); 
+void parent_exit(struct thread *t){	
+	struct list_elem* e = list_begin(&t->cs_list); 	
 
 	while(e != list_end(&t->cs_list)){
-		struct child_status* cs = list_entry(e, struct child_status, elem);
+		struct child_status* cs = list_entry(e, struct child_status, elem);	
 
-		reduce_ref_count(cs);
 		e = list_remove(e);
+		reduce_ref_count(cs);		
 	}
-
 }
 
 void reduce_ref_count(struct child_status* cs){

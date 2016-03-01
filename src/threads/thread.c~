@@ -77,14 +77,28 @@ static tid_t allocate_tid (void);
 /* Reduces the ref_count of all the given threads 
 	 children and removes them from its list */
 
-void parent_exit(struct thread *t){		
+void parent_exit(struct thread *t){	
+	printf("PARENT: %s\n",t->name);
 	struct list_elem* e = list_begin(&t->cs_list); 
+
+	printf("LIST SIZE: %i\n", list_size(&t->cs_list));
 
 	while(e != list_end(&t->cs_list)){
 		struct child_status* cs = list_entry(e, struct child_status, elem);
+		printf("TEST1\n");
+
+		printf("LIST SIZE 2: %i\n", list_size(&t->cs_list));
+
+		e = list_remove(e);
+
+		printf("TEST2\n");
 
 		reduce_ref_count(cs);
-		e = list_remove(e);
+		
+		
+		printf("TEST3\n");
+
+		printf("LIST SIZE 3: %i\n", list_size(&t->cs_list));
 	}
 
 }
@@ -255,9 +269,7 @@ thread_create (const char *name, int priority,
 		
 	/* Adds child_status to the list if the thread could be created */ // Changed from original
 	if (tid != -1){
-		printf("TEST1 \n");
-		list_push_back(&thread_current()->cs_list, &cs->elem);
-		printf("TEST2 \n");
+		list_push_back(&thread_current()->cs_list, &cs->elem);		
 	} else {
 		free(cs);
 	}

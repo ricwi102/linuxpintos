@@ -1,11 +1,1 @@
-FAIL
-Kernel panic in run: PANIC at ../../lib/kernel/list.c:171 in list_insert(): assertion `is_interior (before) || is_tail (before)' failed.
-Call stack: 0xc010717b 0x804a126
-Translation of call stack:
-In kernel.o:
-0xc010717b: debug_panic (.../../lib/kernel/debug.c:34)
-In tests/userprog/exec-missing:
-0x0804a126: exec (.../../lib/user/syscall.c:81)
-Translations of user virtual addresses above are based on a guess at
-the binary to use.  If this guess is incorrect, then those
-translations will be misleading.
+PASS

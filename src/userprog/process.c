@@ -38,8 +38,10 @@ split_string(char* str, struct help_struct *help_sct){
 	const char delim[] = " ";
 	char *token, *save_ptr;
 	int8_t i = 0;
+	printf("STR: %s\n",str);
 	for (token = strtok_r (str, delim, &save_ptr); 
-	token != NULL; token = strtok_r(NULL, delim, &save_ptr)){
+			token != NULL; token = strtok_r(NULL, delim, &save_ptr)){
+		printf("TEST3\n");
   	help_sct->argv[i] = palloc_get_page (0);
   	strlcpy (help_sct->argv[i], token, PGSIZE);
 		++i;
@@ -119,6 +121,7 @@ tid_t
 process_execute (const char *file_name) 
 {
   //char *fn_copy;
+	printf("Input: %s\n",file_name);
 
   tid_t tid;
   struct help_struct *help_sct = (struct help_struct*)malloc(sizeof(struct help_struct));

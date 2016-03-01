@@ -38,8 +38,10 @@ split_string(char* str, struct help_struct *help_sct){
 	const char delim[] = " ";
 	char *token, *save_ptr;
 	int8_t i = 0;
+	printf("TEST2\n");
 	for (token = strtok_r (str, delim, &save_ptr); 
-	token != NULL; token = strtok_r(NULL, delim, &save_ptr)){
+			token != NULL; token = strtok_r(NULL, delim, &save_ptr)){
+		printf("TEST3\n");
   	help_sct->argv[i] = palloc_get_page (0);
   	strlcpy (help_sct->argv[i], token, PGSIZE);
 		++i;
@@ -119,10 +121,12 @@ tid_t
 process_execute (const char *file_name) 
 {
   //char *fn_copy;
+	printf("Input: %s\n",file_name);
 
   tid_t tid;
   struct help_struct *help_sct = (struct help_struct*)malloc(sizeof(struct help_struct));
   split_string(file_name,help_sct);
+	printf("TEST\n");
 
   /* Make a copy of FILE_NAME.
      Otherwise there's a race between the caller and load(). */
@@ -165,8 +169,6 @@ start_process (void* aux)
   success = load (file_name, &if_.eip, &if_.esp);
 	if(success) stack_init(help_sct->argv,help_sct->argc,&if_.esp);
 	//free_argv_pages(help_sct);
-	
-	printf("%d : success \n\n", success);
 
   help_sct->success = success;
 	

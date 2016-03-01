@@ -31,9 +31,9 @@ syscall_handler (struct intr_frame *f UNUSED)
 		size_t size;
 		unsigned int i;
 		switch(*p){
-		case SYS_HALT:
+		case SYS_HALT:{
 		    power_off();
-		    break;
+		    break;	}
 		case SYS_CREATE:{
 				if (check_mult_ptr(p, 2) && valid_ptr(*(p + 1))){
 				  const char *filename = (const char*)(*(p + 1));				
@@ -52,7 +52,7 @@ syscall_handler (struct intr_frame *f UNUSED)
 				  struct file* openFile = (struct file*)filesys_open(fileToOpen);
 				  if (openFile != NULL){
 				    f->eax = addFile(openFile);
-				  } else {        
+				  }else{        
 				    f->eax = -1;
 				  }
 				}
@@ -76,9 +76,10 @@ syscall_handler (struct intr_frame *f UNUSED)
 								*((char*)buffer + i) = input_getc();
 							}								
 						}
-						  f->eax = size;
-						}
-				  else{ 
+						f->eax = size;
+					}else if(fileReadDescriptor == STDOUT_FILENO){
+						f->eax = -1;
+					}else{ 
 				    struct file* openFile = fdOpen(fileReadDescriptor);  
 				    if (openFile != NULL){
 				      f->eax = file_read(openFile,buffer,size);
@@ -101,8 +102,10 @@ syscall_handler (struct intr_frame *f UNUSED)
 				   		putbuf((buffer + i*chunk_size_max), chunk_size);          
 						}	
 						f->eax = size;
-				  }else{   
-				   		struct file* openFile = fdOpen(fileWriteDescriptor);        
+				  }else if(fileWriteDescriptor == STDIN_FILENO){
+						f->eax = -1;
+					}else{   
+				 		struct file* openFile = fdOpen(fileWriteDescriptor);        
 						if (openFile != NULL){
 				    	f->eax = file_write(openFile,buffer,size);
 				  	} else {
@@ -112,7 +115,7 @@ syscall_handler (struct intr_frame *f UNUSED)
 		    }
 		    break; }
 		case SYS_EXIT:{
-				if (check_mult_ptr(p, 2)){
+				if (check_mult_ptr(p, 1)){
 					int exit_status = (int)(*(p + 1));
 					f->eax = exit_status;
 					sys_exit(exit_status);
@@ -123,8 +126,7 @@ syscall_handler (struct intr_frame *f UNUSED)
 					char *filename = (const char*)(*(p + 1));
 					int pid = process_execute(filename);
 					if (pid == TID_ERROR) { 
-						f->eax =  -1;
-						sys_exit(-1); 
+						f->eax =  -1;					
 					}
 					else f->eax = pid;		
 				}		
@@ -145,9 +147,10 @@ syscall_handler (struct intr_frame *f UNUSED)
 
 
 		// Checks if a pointer is valid for that thread and exits if it is not.
-		// Valid -> Smaller than PHYS_BASE and within one of the threads pages. 
+		// Valid -> Smaller than PHYS_BASE and within one of the threads pages.  
+		// Checks if the pointer is atleast on an adress 4 smaller than phys-base, since a pointer is always 4 bytes.
 		bool valid_ptr(void* ptr){ 
-			if (ptr >= PHYS_BASE || (pagedir_get_page(thread_current()->pagedir, ptr) == NULL)){
+			if (ptr >= (PHYS_BASE - 3) || (pagedir_get_page(thread_current()->pagedir, ptr) == NULL)){
 				sys_exit(-1);
 				return false;
 			}
@@ -161,7 +164,6 @@ syscall_handler (struct intr_frame *f UNUSED)
 			uint8_t i;
 			for (i = 1; i <= args; ++i){
 				if (!valid_ptr(ptr + i)) {return false;}
-				
 			}
 			return true;
 		}

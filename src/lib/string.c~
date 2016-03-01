@@ -307,7 +307,6 @@ size_t
 strnlen (const char *string, size_t maxlen) 
 {
   size_t length;
-	printf("%s \n",string[0]);
 
   for (length = 0; string[length] != '\0' && length < maxlen; length++)
     continue;
