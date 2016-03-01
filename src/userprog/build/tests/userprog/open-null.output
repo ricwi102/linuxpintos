@@ -1,6 +1,6 @@
-Copying tests/userprog/open-null into /tmp/atIKsEhQ7x.dsk...
-Writing command line to /tmp/R9FGzTkZ4e.dsk...
-qemu -hda /tmp/R9FGzTkZ4e.dsk -hdb /tmp/MvJuphXiyI.dsk -hdc /tmp/atIKsEhQ7x.dsk -m 4 -net none -nographic -monitor null
+Copying tests/userprog/open-null into /tmp/woG4ftPf1d.dsk...
+Writing command line to /tmp/ZPpTbvPhJM.dsk...
+qemu -hda /tmp/ZPpTbvPhJM.dsk -hdb /tmp/iXNKI3TdFP.dsk -hdc /tmp/woG4ftPf1d.dsk -m 4 -net none -nographic -monitor null
 Kernel command line: -q -f put open-null run open-null
 Pintos booting with 4,088 kB RAM...
 372 pages available in kernel pool.
@@ -14,23 +14,14 @@ Boot complete.
 Putting 'open-null' into the file system...
 Executing 'open-null':
 (open-null) begin
-Page fault at 0: not present error reading page in kernel context.
-Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc010a807
- cr2=00000000 error=00000000
- eax=00000000 ebx=bfffff70 ecx=ffffffff edx=00000000
- esi=c011ffb0 edi=00000000 esp=bfffff70 ebp=c011ffe8
- cs=0008 ds=0010 es=0010 ss=0001
-Kernel PANIC at ../../userprog/exception.c:100 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0xc010717b 0xc010a807 0x804a15f 0x80480af.
-The `backtrace' program can make call stacks useful.
-Read "Backtraces" in the "Debugging Tools" chapter
-of the Pintos documentation for more information.
-Timer: 55 ticks
-Thread: 33 idle ticks, 22 kernel ticks, 0 user ticks
+open-null: exit(-1)
+Execution of 'open-null' complete.
+Timer: 59 ticks
+Thread: 34 idle ticks, 24 kernel ticks, 1 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 59 reads, 202 writes
 hd1:0: 97 reads, 0 writes
-Console: 1332 characters output
+Console: 781 characters output
 Keyboard: 0 keys pressed
-Exception: 1 page faults
+Exception: 0 page faults
 Powering off...

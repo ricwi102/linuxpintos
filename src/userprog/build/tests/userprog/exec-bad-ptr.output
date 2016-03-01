@@ -1,6 +1,6 @@
-Copying tests/userprog/exec-bad-ptr into /tmp/fv0NvBXeG_.dsk...
-Writing command line to /tmp/VrXeiYCANp.dsk...
-qemu -hda /tmp/VrXeiYCANp.dsk -hdb /tmp/L6DiP82sqV.dsk -hdc /tmp/fv0NvBXeG_.dsk -m 4 -net none -nographic -monitor null
+Copying tests/userprog/exec-bad-ptr into /tmp/gSKWHM5bpe.dsk...
+Writing command line to /tmp/Ds5T2kwy6_.dsk...
+qemu -hda /tmp/Ds5T2kwy6_.dsk -hdb /tmp/OTvIdZtRy_.dsk -hdc /tmp/gSKWHM5bpe.dsk -m 4 -net none -nographic -monitor null
 Kernel command line: -q -f put exec-bad-ptr run exec-bad-ptr
 Pintos booting with 4,088 kB RAM...
 372 pages available in kernel pool.
@@ -13,107 +13,15 @@ Formatting file system...done.
 Boot complete.
 Putting 'exec-bad-ptr' into the file system...
 Executing 'exec-bad-ptr':
-TEST1 validptr 
-TESTtrue validptr 
-TEST1 multptr 
-TESTloop multptr 
-TEST1 validptr 
-TESTtrue validptr 
-TESTloop multptr 
-TEST1 validptr 
-TESTtrue validptr 
-TESTloop multptr 
-TEST1 validptr 
-TESTtrue validptr 
-TEST1 validbuf amount = 21 
-TESTloop validbuf 
-TEST1 validptr 
-TESTtrue validptr 
-TESTloop validbuf 
-TEST1 validptr 
-TESTtrue validptr 
-TESTloop validbuf 
-TEST1 validptr 
-TESTtrue validptr 
-TESTloop validbuf 
-TEST1 validptr 
-TESTtrue validptr 
-TESTloop validbuf 
-TEST1 validptr 
-TESTtrue validptr 
-TESTloop validbuf 
-TEST1 validptr 
-TESTtrue validptr 
-TESTloop validbuf 
-TEST1 validptr 
-TESTtrue validptr 
-TESTloop validbuf 
-TEST1 validptr 
-TESTtrue validptr 
-TESTloop validbuf 
-TEST1 validptr 
-TESTtrue validptr 
-TESTloop validbuf 
-TEST1 validptr 
-TESTtrue validptr 
-TESTloop validbuf 
-TEST1 validptr 
-TESTtrue validptr 
-TESTloop validbuf 
-TEST1 validptr 
-TESTtrue validptr 
-TESTloop validbuf 
-TEST1 validptr 
-TESTtrue validptr 
-TESTloop validbuf 
-TEST1 validptr 
-TESTtrue validptr 
-TESTloop validbuf 
-TEST1 validptr 
-TESTtrue validptr 
-TESTloop validbuf 
-TEST1 validptr 
-TESTtrue validptr 
-TESTloop validbuf 
-TEST1 validptr 
-TESTtrue validptr 
-TESTloop validbuf 
-TEST1 validptr 
-TESTtrue validptr 
-TESTloop validbuf 
-TEST1 validptr 
-TESTtrue validptr 
-TESTloop validbuf 
-TEST1 validptr 
-TESTtrue validptr 
-TESTloop validbuf 
-TEST1 validptr 
-TESTtrue validptr 
 (exec-bad-ptr) begin
-TEST1 validptr 
-TESTtrue validptr 
-TEST1 
-TEST1 multptr 
-TESTloop multptr 
-TEST1 validptr 
-TESTtrue validptr 
-Page fault at 0x20101234: not present error reading page in kernel context.
-Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc010aaca
- cr2=20101234 error=00000000
- eax=00000000 ebx=bfffff70 ecx=ffffffff edx=20101234
- esi=c011ffb0 edi=20101234 esp=bfffff70 ebp=c011ffe8
- cs=0008 ds=0010 es=0010 ss=0001
-Kernel PANIC at ../../userprog/exception.c:100 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0xc010717b 0xc010aaca 0x804a116 0x80480af.
-The `backtrace' program can make call stacks useful.
-Read "Backtraces" in the "Debugging Tools" chapter
-of the Pintos documentation for more information.
-Timer: 62 ticks
-Thread: 31 idle ticks, 24 kernel ticks, 7 user ticks
+exec-bad-ptr: exit(-1)
+Execution of 'exec-bad-ptr' complete.
+Timer: 59 ticks
+Thread: 33 idle ticks, 25 kernel ticks, 1 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 59 reads, 202 writes
 hd1:0: 97 reads, 0 writes
-Console: 2837 characters output
+Console: 802 characters output
 Keyboard: 0 keys pressed
-Exception: 1 page faults
+Exception: 0 page faults
 Powering off...

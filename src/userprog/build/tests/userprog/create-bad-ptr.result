@@ -1,13 +1,1 @@
-FAIL
-Kernel panic in run: PANIC at ../../userprog/exception.c:100 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0xc010717b 0xc010a791 0x804a157 0x80480b7
-Translation of call stack:
-In kernel.o:
-0xc010717b: debug_panic (.../../lib/kernel/debug.c:34)
-0xc010a791: syscall_handler (...ll.c:39 (discriminator 1))
-In tests/userprog/create-bad-ptr:
-0x0804a157: create (.../../lib/user/syscall.c:93)
-0x080480b7: test_main (...rprog/create-bad-ptr.c:11)
-Translations of user virtual addresses above are based on a guess at
-the binary to use.  If this guess is incorrect, then those
-translations will be misleading.
+PASS

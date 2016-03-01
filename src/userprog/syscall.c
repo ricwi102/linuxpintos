@@ -15,6 +15,7 @@ struct file* fdOpen(int fd);
 bool valid_ptr(void* ptr);
 bool check_mult_ptr(void* ptr, int args);
 bool valid_buffer(void* ptr, size_t amount);
+bool valid_str(char* str);
 
 
 void
@@ -36,7 +37,7 @@ syscall_handler (struct intr_frame *f UNUSED)
 		    power_off();
 		    break;	}
 		case SYS_CREATE:{
-				if (check_mult_ptr(p, 2) && valid_buffer(*(p + 1), strlen(*(p + 1)) )){
+				if (check_mult_ptr(p, 2) && valid_str((char*)*(p + 1)) ){
 				  const char *filename = (const char*)(*(p + 1));				
 				  size = *(p + 2);
 				  if(filename != NULL && size >= 0){
@@ -48,7 +49,7 @@ syscall_handler (struct intr_frame *f UNUSED)
 				}
 		    break; }
 		case SYS_OPEN:{
-				if (check_mult_ptr(p, 1) && valid_buffer(*(p + 1), strlen(*(p + 1)) )){
+				if (check_mult_ptr(p, 1) && valid_str((char*)*(p + 1)) ){
 					const char *fileToOpen = (const char*)*(p + 1);     
 				  struct file* openFile = (struct file*)filesys_open(fileToOpen);
 				  if (openFile != NULL){
@@ -122,10 +123,8 @@ syscall_handler (struct intr_frame *f UNUSED)
 					sys_exit(exit_status);
 				}
 		    break; }
-		case SYS_EXEC:{
-				printf("TEST1 \n");
-				if (check_mult_ptr(p, 1) && valid_buffer(*(p + 1), strlen((char*)*(p + 1)) ) ){
-					printf("TEST2 \n");
+		case SYS_EXEC:{				
+				if (check_mult_ptr(p, 1) && valid_str((char*)*(p + 1)) ){				
 					char *filename = (const char*)(*(p + 1));
 					int pid = process_execute(filename);
 					if (pid == TID_ERROR) { 
@@ -153,14 +152,11 @@ syscall_handler (struct intr_frame *f UNUSED)
 		 	 Valid -> Smaller than PHYS_BASE and within one of the threads pages.  
 		 	 Checks if the pointer is atleast on an adress 4 smaller than phys-base, 
 			 since a pointer is always 4 bytes.*/
-		bool valid_ptr(void* ptr){ 
-			printf("TEST1 validptr \n");
-			if (ptr >= (PHYS_BASE - 4) || (pagedir_get_page(thread_current()->pagedir, ptr + 3) == NULL)){
-				printf("TESTfalse validptr \n");
+		bool valid_ptr(void* ptr){ 			
+			if (ptr >= (PHYS_BASE - 4) || (pagedir_get_page(thread_current()->pagedir, ptr + 3) == NULL)){				
 				sys_exit(-1);
 				return false;
-			}
-			printf("TESTtrue validptr \n");
+			}		
 			return true;
 		}
 	
@@ -168,22 +164,26 @@ syscall_handler (struct intr_frame *f UNUSED)
 		/* Checks multiple pointers with (valid_ptr(void' ptr)) starting from the
 			 pointer after th given pointer and checks (args) pointers afterwrds. */
 		bool check_mult_ptr(void* ptr, int args){
-			printf("TEST1 multptr \n");
 			uint8_t i;
 			for (i = 1; i <= args; ++i){
-				printf("TESTloop multptr \n");
 				if (!valid_ptr(ptr + i)) {return false;}
 			}
 			return true;
 		}
 
 		bool valid_buffer(void* ptr, size_t amount){		
-			printf("TEST1 validbuf amount = %i \n", amount);
 			size_t i;
 			for (i = 0; i < amount; ++i){
-				printf("TESTloop validbuf \n");
 				if (!valid_ptr((ptr + i) )) {return false;}
 			}
+			return true;
+		}
+
+		bool valid_str(char* str){
+			int i  = -1;
+			do {
+				if (!valid_ptr( str +  ++i ) ) { return false; }
+			} while ( *(str + i) != '\0' );
 			return true;
 		}
 

@@ -1,11 +1,11 @@
-Copying tests/userprog/create-bad-ptr into /tmp/z5aS0z7SnL.dsk...
-Writing command line to /tmp/R3VSgXaLae.dsk...
-qemu -hda /tmp/R3VSgXaLae.dsk -hdb /tmp/dSSNjt5co0.dsk -hdc /tmp/z5aS0z7SnL.dsk -m 4 -net none -nographic -monitor null
+Copying tests/userprog/create-bad-ptr into /tmp/IxnbY_1D7d.dsk...
+Writing command line to /tmp/q7Q6uWtU82.dsk...
+qemu -hda /tmp/q7Q6uWtU82.dsk -hdb /tmp/hX6QSUzhJP.dsk -hdc /tmp/IxnbY_1D7d.dsk -m 4 -net none -nographic -monitor null
 Kernel command line: -q -f put create-bad-ptr run create-bad-ptr
 Pintos booting with 4,088 kB RAM...
 372 pages available in kernel pool.
 371 pages available in user pool.
-Calibrating timer...  419,020,800 loops/s.
+Calibrating timer...  405,913,600 loops/s.
 hd0:0: detected 153 sector (76 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 4,032 sector (1 MB) disk, model "QEMU HARDDISK", serial "QM00002"
 hd1:0: detected 98 sector (49 kB) disk, model "QEMU HARDDISK", serial "QM00003"
@@ -14,23 +14,14 @@ Boot complete.
 Putting 'create-bad-ptr' into the file system...
 Executing 'create-bad-ptr':
 (create-bad-ptr) begin
-Page fault at 0x20101234: not present error reading page in kernel context.
-Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc010a791
- cr2=20101234 error=00000000
- eax=00000000 ebx=bfffff6c ecx=ffffffff edx=20101234
- esi=c011ffb0 edi=20101234 esp=bfffff6c ebp=c011ffe8
- cs=0008 ds=0010 es=0010 ss=0002
-Kernel PANIC at ../../userprog/exception.c:100 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0xc010717b 0xc010a791 0x804a157 0x80480b7.
-The `backtrace' program can make call stacks useful.
-Read "Backtraces" in the "Debugging Tools" chapter
-of the Pintos documentation for more information.
-Timer: 56 ticks
-Thread: 32 idle ticks, 23 kernel ticks, 1 user ticks
+create-bad-ptr: exit(-1)
+Execution of 'create-bad-ptr' complete.
+Timer: 59 ticks
+Thread: 33 idle ticks, 25 kernel ticks, 1 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 59 reads, 204 writes
 hd1:0: 98 reads, 0 writes
-Console: 1366 characters output
+Console: 816 characters output
 Keyboard: 0 keys pressed
-Exception: 1 page faults
+Exception: 0 page faults
 Powering off...

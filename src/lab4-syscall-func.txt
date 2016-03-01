@@ -1,0 +1,50 @@
+	case SYS_TELL:{
+				if (check_mult_ptr(p, 1)){
+					struct file* openFile = fdOpen((int)*(p+1));
+					if (openFile != NULL){
+						f->eax = file_tell(openFile);
+					} else {
+						f->eax = -1;
+					}		
+				}
+				break; }
+		case SYS_SEEK:{
+				if (check_mult_ptr(p, 2)){
+					struct file* openFile = fdOpen((int)*(p+1));					
+					if (openFile != NULL){
+						off_t pos = (off_t)*(p+2);
+						if (pos > file_length(openFile)) { pos = file_length(openFile);}
+						if (pos < 0) { pos = 0; }
+						file_seek(openFile, pos);				
+					}		
+				}
+				break; }
+		case SYS_FILESIZE:{
+				if (check_mult_ptr(p, 1)){
+					struct file* openFile = fdOpen((int)*(p+1));
+					if (openFile != NULL){
+						f->eax = file_length(openFile);
+					} else {
+						f->eax = -1;
+					}		
+				}
+				break; }
+		case SYS_REMOVE:{
+				if (check_mult_ptr(p, 1) && valid_ptr((void*)*(p + 1))){
+					const char *filename = (const char*)(*(p + 1));
+					
+					// Kolla om filen finns som inode i "open_inodes" (lista)
+
+					// Om den finns, vänta med att ta bort tills inode->open_count = 0
+					// Se också till att ingen mer kan öppna filen
+
+					// kan inte blocka den nuvarande tråden??
+
+					// Om filen ej öppen -> filesys_remove(filename) 					
+
+					//någonstans
+					filesys_remove(filename);
+
+				
+				}
+				break; }
