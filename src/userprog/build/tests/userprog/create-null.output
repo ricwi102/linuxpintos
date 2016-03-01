@@ -1,6 +1,6 @@
-Copying tests/userprog/create-null into /tmp/xENUrbMFEp.dsk...
-Writing command line to /tmp/4OltlnwHfa.dsk...
-qemu -hda /tmp/4OltlnwHfa.dsk -hdb /tmp/Lp8s6WOv5q.dsk -hdc /tmp/xENUrbMFEp.dsk -m 4 -net none -nographic -monitor null
+Copying tests/userprog/create-null into /tmp/nu7wVXfJAq.dsk...
+Writing command line to /tmp/TxSHe8iQZq.dsk...
+qemu -hda /tmp/TxSHe8iQZq.dsk -hdb /tmp/0ns9lLBEr2.dsk -hdc /tmp/nu7wVXfJAq.dsk -m 4 -net none -nographic -monitor null
 Kernel command line: -q -f put create-null run create-null
 Pintos booting with 4,088 kB RAM...
 372 pages available in kernel pool.
@@ -14,14 +14,23 @@ Boot complete.
 Putting 'create-null' into the file system...
 Executing 'create-null':
 (create-null) begin
-create-null: exit(-1)
-Execution of 'create-null' complete.
-Timer: 56 ticks
-Thread: 32 idle ticks, 24 kernel ticks, 0 user ticks
+Page fault at 0: not present error reading page in kernel context.
+Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc010a791
+ cr2=00000000 error=00000000
+ eax=00000000 ebx=bfffff6c ecx=ffffffff edx=00000000
+ esi=c011ffb0 edi=00000000 esp=bfffff6c ebp=c011ffe8
+ cs=0008 ds=0010 es=0010 ss=0002
+Kernel PANIC at ../../userprog/exception.c:100 in kill(): Kernel bug - unexpected interrupt in kernel
+Call stack: 0xc010717b 0xc010a791 0x804a157 0x80480b7.
+The `backtrace' program can make call stacks useful.
+Read "Backtraces" in the "Debugging Tools" chapter
+of the Pintos documentation for more information.
+Timer: 61 ticks
+Thread: 32 idle ticks, 28 kernel ticks, 1 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 59 reads, 204 writes
 hd1:0: 98 reads, 0 writes
-Console: 795 characters output
+Console: 1342 characters output
 Keyboard: 0 keys pressed
-Exception: 0 page faults
+Exception: 1 page faults
 Powering off...

@@ -363,6 +363,7 @@ thread_exit (void)
       t->fileArray[i] = NULL;
     }
   }	
+
 	parent_exit(t);
 	reduce_ref_count(t->cs);
 	t->cs = NULL;

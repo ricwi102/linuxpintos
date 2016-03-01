@@ -36,7 +36,7 @@ void help_sct_init(struct help_struct* h_sct){
 	 the amount of arguments into the help_struct */
 void
 split_string(char* str, struct help_struct *help_sct){	
-	char* str_copy = palloc_get_page(0);
+	char* str_copy = malloc(sizeof(char) * strlen(str));
 	strlcpy (str_copy, str, PGSIZE);
 
 	const char delim[] = " ";					 // Splits strings on " "
@@ -46,17 +46,17 @@ split_string(char* str, struct help_struct *help_sct){
 	for (token = strtok_r (str_copy, delim, &save_ptr); 
 			token != NULL; token = strtok_r(NULL, delim, &save_ptr))
 	{		
-  	help_sct->argv[i] = palloc_get_page (0);
+  	help_sct->argv[i] = malloc(sizeof(char) * strlen(token));
   	strlcpy (help_sct->argv[i], token, PGSIZE);
 		++i;
 		if(i == 32) break;							 // max 32 args
 	}
-	palloc_free_page(str_copy);
+	free(str_copy);
 	help_sct->argc = i;
 }
 
 
-// Initiates the stack with the arguments given (argv arguments, argc amount of arguments)
+// Initiates the stack with the arguments given (argv = arguments, argc = amount of arguments)
 void stack_init(char* argv[32], int8_t argc, void **esp){
   int8_t i = argc;
 	int8_t offset = 0;
@@ -73,7 +73,7 @@ void stack_init(char* argv[32], int8_t argc, void **esp){
 		stackpointer = stackpointer - size;
 		strlcpy(stackpointer,arg,size);	
 		//printf("%X: %s (arg %d value) \n",stackpointer,arg,i);
-		palloc_free_page (argv[i]); // Frees page 
+		free(argv[i]);
 		argv[i] = stackpointer;
 		offset = (offset + size)%4;
 	}
@@ -211,7 +211,7 @@ process_wait (tid_t child_tid)
 	for (e = list_begin(&t->cs_list); e != list_end(&t->cs_list); e = 
 		list_next(e)){
 			struct child_status* cs = list_entry(e, struct child_status, elem);
-			if (cs->c_tid == child_tid){
+			if (cs->c_tid == child_tid){ // Stops the loop if it finds the given child id
 				list_remove(e);
 				exit_value = get_exit_value(cs);
 				reduce_ref_count(cs);

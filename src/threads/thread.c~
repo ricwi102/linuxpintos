@@ -76,7 +76,6 @@ static tid_t allocate_tid (void);
 
 /* Reduces the ref_count of all the given threads 
 	 children and removes them from its list */
-
 void parent_exit(struct thread *t){	
 	struct list_elem* e = list_begin(&t->cs_list); 	
 
@@ -106,7 +105,7 @@ void reduce_ref_count(struct child_status* cs){
 	}
 }
 
-// Initiates the child_status
+/* Initiates the child_status */
 void cs_init(struct child_status* cs, tid_t tid){
 	sema_init(&cs->s, 0);
 	lock_init(&cs->l);

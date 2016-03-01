@@ -36,7 +36,7 @@ void help_sct_init(struct help_struct* h_sct){
 	 the amount of arguments into the help_struct */
 void
 split_string(char* str, struct help_struct *help_sct){	
-	char* str_copy = palloc_get_page(0);
+	char* str_copy = malloc(sizeof(char) * (strlen(str) + 1));
 	strlcpy (str_copy, str, PGSIZE);
 
 	const char delim[] = " ";					 // Splits strings on " "
@@ -46,12 +46,12 @@ split_string(char* str, struct help_struct *help_sct){
 	for (token = strtok_r (str_copy, delim, &save_ptr); 
 			token != NULL; token = strtok_r(NULL, delim, &save_ptr))
 	{		
-  	help_sct->argv[i] = palloc_get_page (0);
+  	help_sct->argv[i] = malloc(sizeof(char) * (strlen(token) + 1));
   	strlcpy (help_sct->argv[i], token, PGSIZE);
 		++i;
 		if(i == 32) break;							 // max 32 args
 	}
-	palloc_free_page(str_copy);
+	free(str_copy);
 	help_sct->argc = i;
 }
 
@@ -73,7 +73,7 @@ void stack_init(char* argv[32], int8_t argc, void **esp){
 		stackpointer = stackpointer - size;
 		strlcpy(stackpointer,arg,size);	
 		//printf("%X: %s (arg %d value) \n",stackpointer,arg,i);
-		palloc_free_page (argv[i]); // Frees page 
+		free(argv[i]);
 		argv[i] = stackpointer;
 		offset = (offset + size)%4;
 	}
