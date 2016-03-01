@@ -25,31 +25,38 @@ static bool load (const char *cmdline, void (**eip) (void), void **esp);
 
 
 
-
+/* Initiates the help_struct */
 void help_sct_init(struct help_struct* h_sct){
 	sema_init(&h_sct->s, 0);
 	h_sct->file_name = h_sct->argv[0];
 	h_sct->success = false;
 }
 
-
+/* Splits the string to upto 32 arguments and puts the arguments and 
+	 the amount of arguments into the help_struct */
 void
 split_string(char* str, struct help_struct *help_sct){	
-	const char delim[] = " ";
+	char* str_copy = palloc_get_page(0);
+	strlcpy (str_copy, str, PGSIZE);
+
+	const char delim[] = " ";					 // Splits strings on " "
 	char *token, *save_ptr;
 	int8_t i = 0;
-	printf("TEST2\n");
-	for (token = strtok_r (str, delim, &save_ptr); 
-			token != NULL; token = strtok_r(NULL, delim, &save_ptr)){
-		printf("TEST3\n");
+
+	for (token = strtok_r (str_copy, delim, &save_ptr); 
+			token != NULL; token = strtok_r(NULL, delim, &save_ptr))
+	{		
   	help_sct->argv[i] = palloc_get_page (0);
   	strlcpy (help_sct->argv[i], token, PGSIZE);
 		++i;
-		if(i == 32) break;
+		if(i == 32) break;							 // max 32 args
 	}
+	palloc_free_page(str_copy);
 	help_sct->argc = i;
 }
 
+
+// Initiates the stack with the arguments given (argv arguments, argc amount of arguments)
 void stack_init(char* argv[32], int8_t argc, void **esp){
   int8_t i = argc;
 	int8_t offset = 0;
@@ -121,12 +128,10 @@ tid_t
 process_execute (const char *file_name) 
 {
   //char *fn_copy;
-	printf("Input: %s\n",file_name);
 
   tid_t tid;
   struct help_struct *help_sct = (struct help_struct*)malloc(sizeof(struct help_struct));
   split_string(file_name,help_sct);
-	printf("TEST\n");
 
   /* Make a copy of FILE_NAME.
      Otherwise there's a race between the caller and load(). */
@@ -142,7 +147,8 @@ process_execute (const char *file_name)
   tid = thread_create (help_sct->argv[0], PRI_DEFAULT, start_process, help_sct);
 	
   sema_down(&help_sct->s);
-  if (tid == TID_ERROR || !help_sct->success){
+
+  if (/*tid == TID_ERROR ||*/ !help_sct->success){
     //palloc_free_page (fn_copy);
 		tid = TID_ERROR;
 	}
@@ -167,7 +173,7 @@ start_process (void* aux)
   if_.cs = SEL_UCSEG;
   if_.eflags = FLAG_IF | FLAG_MBS;
   success = load (file_name, &if_.eip, &if_.esp);
-	if(success) stack_init(help_sct->argv,help_sct->argc,&if_.esp);
+	if(success) stack_init(help_sct->argv,help_sct->argc,&if_.esp); // Initializes stack on success
 	//free_argv_pages(help_sct);
 
   help_sct->success = success;
@@ -194,16 +200,13 @@ start_process (void* aux)
    exception), returns -1.  If TID is invalid or if it was not a
    child of the calling process, or if process_wait() has already
    been successfully called for the given TID, returns -1
-   immediately, without waiting.
-
-   This function will be implemented in problem 2-2.  For now, it
-   does nothing. */
+   immediately, without waiting.*/
 int
 process_wait (tid_t child_tid) 
 {  
 	struct thread* t = thread_current();
 	struct list_elem* e = list_begin(&t->cs_list);
-	int exit_value = -1;
+	int exit_value = -1; 					// Default exit value if the child id cannot be found
 
 	for (e = list_begin(&t->cs_list); e != list_end(&t->cs_list); e = 
 		list_next(e)){

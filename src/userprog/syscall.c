@@ -146,11 +146,12 @@ syscall_handler (struct intr_frame *f UNUSED)
 }
 
 
-		// Checks if a pointer is valid for that thread and exits if it is not.
-		// Valid -> Smaller than PHYS_BASE and within one of the threads pages.  
-		// Checks if the pointer is atleast on an adress 4 smaller than phys-base, since a pointer is always 4 bytes.
+		/* Checks if a pointer is valid for that thread and exits if it is not.
+		 	 Valid -> Smaller than PHYS_BASE and within one of the threads pages.  
+		 	 Checks if the pointer is atleast on an adress 4 smaller than phys-base, 
+			 since a pointer is always 4 bytes.*/
 		bool valid_ptr(void* ptr){ 
-			if (ptr >= (PHYS_BASE - 3) || (pagedir_get_page(thread_current()->pagedir, ptr) == NULL)){
+			if (ptr >= (PHYS_BASE - 4) || (pagedir_get_page(thread_current()->pagedir, ptr) == NULL)){
 				sys_exit(-1);
 				return false;
 			}
@@ -158,8 +159,8 @@ syscall_handler (struct intr_frame *f UNUSED)
 		}
 	
 
-		// Checks multiple pointers with (valid_ptr(void' ptr)) starting from the
-		// pointer after th given pointer and checks (args) pointers afterwrds.  
+		/* Checks multiple pointers with (valid_ptr(void' ptr)) starting from the
+			 pointer after th given pointer and checks (args) pointers afterwrds. */
 		bool check_mult_ptr(void* ptr, int args){
 			uint8_t i;
 			for (i = 1; i <= args; ++i){
@@ -169,14 +170,14 @@ syscall_handler (struct intr_frame *f UNUSED)
 		}
 
 
-		// exits and closes the thread with the given exit_status
+		/* exits and closes the thread with the given exit_status */
 		void sys_exit(int exit_status){
 			printf("%s: exit(%d)\n", thread_current()->name, exit_status);		
 			thread_current()->cs->exit_status = exit_status;
 			thread_exit();			
 		}
 
-		// Adds a file to the file array if it isn't full
+		/* Adds a file to the file array if it isn't full */
     int addFile(struct file *f){
       struct thread *t = thread_current();
       unsigned int i;
@@ -190,8 +191,8 @@ syscall_handler (struct intr_frame *f UNUSED)
         return -1;
     }
 
-		// Sets the position of the file descriptor to NULL.
-		// File has to have already been closed
+		/* Sets the position of the file descriptor to NULL.
+			 File has to have already been closed */
     void removeFile(int fd){
 			if (fd >= 2 && fd < 130){
       	struct thread *t = thread_current();
@@ -200,8 +201,8 @@ syscall_handler (struct intr_frame *f UNUSED)
     }
 
 
-		// Opens a file from the filearray with the given file descriptor.
-		// returns NULL if the (fd) is out of bounds or there is no file with that (fd)
+		/* Opens a file from the filearray with the given file descriptor.
+			 returns NULL if the (fd) is out of bounds or there is no file with that (fd) */
     struct file* fdOpen(int fd){
       if (fd >= 2 && fd < 130){
         struct thread *t = thread_current();				

@@ -76,7 +76,6 @@ static tid_t allocate_tid (void);
 
 /* Reduces the ref_count of all the given threads 
 	 children and removes them from its list */
-
 void parent_exit(struct thread *t){	
 	struct list_elem* e = list_begin(&t->cs_list); 	
 
@@ -88,6 +87,11 @@ void parent_exit(struct thread *t){
 	}
 }
 
+
+/* Reduces the refcount by one, which in turn either frees the allocated 
+	 child_status or uses sema_up to unblock the parent_thread from waiting.
+	 (Will sema_up if the parent exits first aswell, 
+	 but that does not change the intended functionality) */
 void reduce_ref_count(struct child_status* cs){
 	if (cs != NULL){		
 		lock_acquire(&cs->l);
@@ -101,6 +105,7 @@ void reduce_ref_count(struct child_status* cs){
 	}
 }
 
+/* Initiates the child_status */
 void cs_init(struct child_status* cs, tid_t tid){
 	sema_init(&cs->s, 0);
 	lock_init(&cs->l);
@@ -109,6 +114,8 @@ void cs_init(struct child_status* cs, tid_t tid){
 	cs->exit_status = -1;
 }
 
+/* Gets the exit-value if the child has exited.
+	 Othewise it wates for the child to exit before grabbing it */
 int get_exit_value(struct child_status* cs){
 	if (cs->ref_count > 1){	sema_down(&cs->s); }
 	return cs->exit_status;
