@@ -1,12 +1,12 @@
-Copying tests/userprog/close-stdout into /tmp/78g5JnZmS4.dsk...
-Writing command line to /tmp/qKY0lnrPUN.dsk...
-qemu -hda /tmp/qKY0lnrPUN.dsk -hdb /tmp/TdVGVNKCwb.dsk -hdc /tmp/78g5JnZmS4.dsk -m 4 -net none -nographic -monitor null
+Copying tests/userprog/close-stdout into /tmp/6RzLC2Bco1.dsk...
+Writing command line to /tmp/pyzDHpuJQY.dsk...
+qemu -hda /tmp/pyzDHpuJQY.dsk -hdb /tmp/zyHPWRHnar.dsk -hdc /tmp/6RzLC2Bco1.dsk -m 4 -net none -nographic -monitor null
 Kernel command line: -q -f put close-stdout run close-stdout
 Pintos booting with 4,088 kB RAM...
-372 pages available in kernel pool.
+371 pages available in kernel pool.
 371 pages available in user pool.
 Calibrating timer...  419,020,800 loops/s.
-hd0:0: detected 153 sector (76 kB) disk, model "QEMU HARDDISK", serial "QM00001"
+hd0:0: detected 161 sector (80 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 4,032 sector (1 MB) disk, model "QEMU HARDDISK", serial "QM00002"
 hd1:0: detected 97 sector (48 kB) disk, model "QEMU HARDDISK", serial "QM00003"
 Formatting file system...done.
@@ -18,7 +18,7 @@ Executing 'close-stdout':
 close-stdout: exit(0)
 Execution of 'close-stdout' complete.
 Timer: 60 ticks
-Thread: 32 idle ticks, 28 kernel ticks, 0 user ticks
+Thread: 33 idle ticks, 26 kernel ticks, 1 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 59 reads, 202 writes
 hd1:0: 97 reads, 0 writes

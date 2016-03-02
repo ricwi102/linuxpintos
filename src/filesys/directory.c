@@ -198,13 +198,16 @@ dir_remove (struct dir *dir, const char *name)
 
   /* Open inode. */
   inode = inode_open (e.inode_sector);
-  if (inode == NULL)
+  if (inode == NULL){
     goto done;
+	}
 
   /* Erase directory entry. */
   e.in_use = false;
-  if (inode_write_at (dir->inode, &e, sizeof e, ofs) != sizeof e) 
+  if (inode_write_at (dir->inode, &e, sizeof e, ofs) != sizeof e){
+		//printf("byteswritten\n");
     goto done;
+	}
 
   /* Remove inode. */
   inode_remove (inode);
@@ -212,6 +215,7 @@ dir_remove (struct dir *dir, const char *name)
 
  done:
   inode_close (inode);
+	//printf("Success: %i \n",success);
   return success;
 }
 

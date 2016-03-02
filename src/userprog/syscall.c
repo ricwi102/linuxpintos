@@ -173,30 +173,10 @@ syscall_handler (struct intr_frame *f UNUSED)
 				}
 				break; }
 		case SYS_REMOVE:{
-				if (check_mult_ptr(p, 1) && valid_str((char*)*(p + 1))){
-					const char *filename = (const char*)(*(p + 1));
-					struct file* f = (struct file*)filesys_open(filename);
-					struct inode* inode = (struct inode*)file_get_inode(f);
-					file_close(f);
-					if(inode_open_cnt(inode) > 0){
-						wait_to_remove(inode);
-					}else{
-						f->eax = filesys_remove(filename);
-					}
-					
-
-					// Om den finns, vänta med att ta bort tills inode->open_count = 0
-					// Se också till att ingen mer kan öppna filen
-
-					// kan inte blocka den nuvarande tråden??
-
-					// Om filen ej öppen -> filesys_remove(filename) 					
-
-					//någonstans
-					filesys_remove(filename);
-
-				
-				}
+				if (check_mult_ptr(p, 1) && valid_str((char*)*(p + 1))){				
+					const char *filename = (const char*)(*(p + 1));					
+					f->eax = filesys_remove(filename);
+				}				
 				break; }
 		default:{
 		    printf ("default system call! SYS_NR: ");
