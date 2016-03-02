@@ -7,6 +7,8 @@
 #include "filesys/file.h"
 #include "filesys/filesys.h"
 #include "threads/vaddr.h"
+#include "filesys/inode.h"
+
 
 static void syscall_handler (struct intr_frame *);
 int addFile(struct file *f);
@@ -139,6 +141,63 @@ syscall_handler (struct intr_frame *f UNUSED)
 					f->eax = exit_value;
 				}
 				break; }
+		case SYS_TELL:{
+				if (check_mult_ptr(p, 1)){
+					struct file* openFile = fdOpen((int)*(p+1));
+					if (openFile != NULL){
+						f->eax = file_tell(openFile);
+					} else {
+						f->eax = -1;
+					}		
+				}
+				break; }
+		case SYS_SEEK:{
+				if (check_mult_ptr(p, 2)){
+					struct file* openFile = fdOpen((int)*(p+1));					
+					if (openFile != NULL){
+						off_t pos = (off_t)*(p+2);
+						if (pos > file_length(openFile)) { pos = file_length(openFile);}
+						if (pos < 0) { pos = 0; }
+						file_seek(openFile, pos);				
+					}		
+				}
+				break; }
+		case SYS_FILESIZE:{
+				if (check_mult_ptr(p, 1)){
+					struct file* openFile = fdOpen((int)*(p+1));
+					if (openFile != NULL){
+						f->eax = file_length(openFile);
+					} else {
+						f->eax = -1;
+					}		
+				}
+				break; }
+		case SYS_REMOVE:{
+				if (check_mult_ptr(p, 1) && valid_str((char*)*(p + 1))){
+					const char *filename = (const char*)(*(p + 1));
+					struct file* f = (struct file*)filesys_open(filename);
+					struct inode* inode = (struct inode*)file_get_inode(f);
+					file_close(f);
+					if(inode_open_cnt(inode) > 0){
+						wait_to_remove(inode);
+					}else{
+						f->eax = filesys_remove(filename);
+					}
+					
+
+					// Om den finns, vänta med att ta bort tills inode->open_count = 0
+					// Se också till att ingen mer kan öppna filen
+
+					// kan inte blocka den nuvarande tråden??
+
+					// Om filen ej öppen -> filesys_remove(filename) 					
+
+					//någonstans
+					filesys_remove(filename);
+
+				
+				}
+				break; }
 		default:{
 		    printf ("default system call! SYS_NR: ");
 		    printf ("%d \n",*p);
@@ -146,7 +205,6 @@ syscall_handler (struct intr_frame *f UNUSED)
 		}
   }
 }
-
 
 		/* Checks if a pointer is valid for that thread and exits if it is not.
 		 	 Valid -> Smaller than PHYS_BASE and within one of the threads pages.  

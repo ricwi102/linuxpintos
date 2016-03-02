@@ -355,7 +355,7 @@ inode_open_cnt(struct inode* inode){
 }
 
 void wait_to_remove(struct inode* inode){
-	sema_down(inode->s);
+	
 }
 
 
