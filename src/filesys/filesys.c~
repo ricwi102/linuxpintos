@@ -31,9 +31,8 @@ filesys_init (bool format)
   free_map_open ();
 
 	lock_init(&create_lock);
-	lock_init(&open_lock);
-	lock_init(&remove_lock);
-}	
+	lcok_init(&open_lock);
+}
 
 /* Shuts down the file system module, writing any unwritten data
    to disk. */

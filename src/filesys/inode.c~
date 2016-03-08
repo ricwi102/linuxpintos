@@ -38,9 +38,11 @@ struct inode
     bool removed;                       /* True if deleted, false otherwise. */
     int deny_write_cnt;                 /* 0: writes ok, >0: deny writes. */
     struct inode_disk data;             /* Inode content. */
+
 		struct semaphore s;
 		struct semaphore mutex;
 		struct semaphore wrt;
+		struct lock l;
 		int readcount;
   };
 
@@ -152,6 +154,7 @@ inode_open (disk_sector_t sector)
 	sema_init(&inode->s, 0);
 	sema_init(&inode->mutex, 1);
 	sema_init(&inode->wrt, 1);
+	lock_init(&inode->l);
 	inode->readcount = 0;
 
 
@@ -188,6 +191,7 @@ inode_close (struct inode *inode)
     return;
 
   /* Release resources if this was the last opener. */
+	lock_aquire(&inode->l);
   if (--inode->open_cnt == 0)
     {
       /* Remove from inode list and release lock. */
@@ -201,7 +205,9 @@ inode_close (struct inode *inode)
                             bytes_to_sectors (inode->data.length)); 
         }
       free (inode); 
-    }
+    } else {
+			lock_release(&inode->l);
+		}
 }
 
 /* Marks INODE to be deleted when it is closed by the last caller who
@@ -378,7 +384,7 @@ inode_open_cnt(struct inode* inode){
 	return inode->open_cnt;
 }
 
-void wait_to_remove(struct inode* inode){
+void set_remove(struct inode* inode){
 	inode_remove(inode);
 }
 
